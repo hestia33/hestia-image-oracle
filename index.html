@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <title>HESTIA IMAGE ORACLE</title>
-
 <style>
 :root{
   --bg:#120d18;
@@ -18,9 +17,7 @@
   --accent:#d8b4e5;
   --line:#46344f
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   background:radial-gradient(circle at 50% 0,#352040 0,#120d18 48%);
@@ -28,31 +25,26 @@ body{
   font-family:Georgia,'Times New Roman',serif;
   min-height:100vh
 }
-
 main{
   width:min(720px,100%);
   margin:auto;
   padding:28px 18px 42px;
   text-align:center
 }
-
 .moon{
   font-size:28px;
   margin:6px 0 8px
 }
-
 .brand{
   letter-spacing:.25em;
   font-size:13px;
   color:var(--muted)
 }
-
 h1{
   font-size:30px;
   font-weight:400;
   margin:8px 0 22px
 }
-
 .card{
   background:rgba(33,21,43,.82);
   border:1px solid var(--line);
@@ -60,7 +52,6 @@ h1{
   padding:16px;
   box-shadow:0 18px 50px rgba(0,0,0,.3)
 }
-
 .image-wrap{
   min-height:54vh;
   display:flex;
@@ -70,21 +61,18 @@ h1{
   border-radius:16px;
   overflow:hidden
 }
-
 .image-wrap img{
   display:block;
   width:100%;
   max-height:68vh;
   object-fit:contain
 }
-
 .placeholder{
   padding:55px 24px;
   color:var(--muted);
   font-size:18px;
   line-height:1.7
 }
-
 .actions{
   display:flex;
   gap:10px;
@@ -92,7 +80,6 @@ h1{
   margin:16px 0 8px;
   flex-wrap:wrap
 }
-
 button{
   border:1px solid #72577e;
   background:#382442;
@@ -102,38 +89,31 @@ button{
   font:600 14px system-ui,sans-serif;
   letter-spacing:.03em
 }
-
 button:active{
   transform:scale(.98)
 }
-
 button.secondary{
   background:transparent;
   color:var(--muted)
 }
-
 button:disabled{
   opacity:.55
 }
-
 .meta{
   font:12px/1.6 system-ui,sans-serif;
   color:var(--muted);
   text-align:left;
   padding:12px 5px 2px
 }
-
 .meta a{
   color:var(--accent)
 }
-
 .status{
   min-height:22px;
   color:var(--muted);
   font:12px system-ui,sans-serif;
   margin-top:7px
 }
-
 .credit{
   margin-top:12px;
   font:10px system-ui,sans-serif;
@@ -141,49 +121,33 @@ button:disabled{
 }
 </style>
 </head>
-
 <body>
-
 <main>
-
   <div class="moon">☾</div>
-
   <div class="brand">HESTIA</div>
-
   <h1>Image Oracle</h1>
-
   <section class="card">
-
     <div id="imageWrap" class="image-wrap">
       <div class="placeholder">
         Your image will appear here.<br>
         <span>Draw when you are ready.</span>
       </div>
     </div>
-
     <div class="actions">
       <button id="draw">DRAW AN IMAGE</button>
       <button id="again" class="secondary" disabled>
         DRAW AGAIN
       </button>
     </div>
-
     <div id="status" class="status"></div>
-
     <div id="meta" class="meta"></div>
-
   </section>
-
   <div class="credit">
     Made with the Openverse API · Hestia Image Oracle
   </div>
-
 </main>
-
 <script>
-
 const API = 'https://api.openverse.org/v1/images/';
-
 const queries = [
   'people daily life',
   'people conversation',
@@ -232,7 +196,6 @@ const queries = [
   'street life people',
   'domestic scene people'
 ];
-
 const positive = [
   'people','person','human','man','woman','child','children',
   'family','couple','portrait','face','crowd','worker',
@@ -241,7 +204,6 @@ const positive = [
   'daily life','street','home','relationship','painting',
   'postcard','historical','vintage','photograph','artwork'
 ];
-
 const negative = [
   'insect','spider','butterfly','bee','wasp','fly',
   'motorcycle','motorbike','car','truck','bus','train',
@@ -250,244 +212,222 @@ const negative = [
   'machine','engine','machinery','equipment',
   'blueprint','scientific'
 ];
-
-
 /* ------------------------------
    MEMORY
 ------------------------------ */
-
 let seen = new Set(
   JSON.parse(
     localStorage.getItem('hestia_seen') || '[]'
   )
 );
-
 function saveSeen(){
   localStorage.setItem(
     'hestia_seen',
     JSON.stringify([...seen].slice(-3000))
   );
 }
-
-
 /* ------------------------------
    ID
-   Supports both current "id"
-   and older "identifier"
 ------------------------------ */
-
 function getId(item){
-  return item.id || item.identifier || null;
+  return item.id ||
+         item.identifier ||
+         null;
 }
-
-
 /* ------------------------------
    SCORE
 ------------------------------ */
-
 function score(item){
-
-  const tags = Array.isArray(item.tags)
-    ? item.tags.map(tag =>
-        typeof tag === 'string'
-          ? tag
-          : (tag.name || '')
-      ).join(' ')
-    : '';
-
+  const tags =
+    Array.isArray(item.tags)
+      ? item.tags.map(tag =>
+          typeof tag === 'string'
+            ? tag
+            : (tag.name || '')
+        ).join(' ')
+      : '';
   const text = (
     (item.title || '') + ' ' +
     (item.description || '') + ' ' +
     tags
   ).toLowerCase();
-
   let value = 0;
-
   for(const word of positive){
     if(text.includes(word)){
       value += 2;
     }
   }
-
   for(const word of negative){
     if(text.includes(word)){
       value -= 4;
     }
   }
-
   if(item.width && item.height){
-
     const ratio =
       item.width / item.height;
-
     if(ratio > 0.4 && ratio < 2.8){
       value += 1;
     }
   }
-
   return value;
 }
-
-
 /* ------------------------------
    OPENVERSE SEARCH
 ------------------------------ */
-
 async function searchOpenverse(query,page){
-
-  const url = new URL(API);
-
-  url.searchParams.set('q',query);
-  url.searchParams.set('page',page);
-  url.searchParams.set('page_size','30');
-  url.searchParams.set('mature','false');
-
+  const url =
+    new URL(API);
+  url.searchParams.set(
+    'q',
+    query
+  );
+  url.searchParams.set(
+    'page',
+    page
+  );
+  url.searchParams.set(
+    'page_size',
+    '30'
+  );
+  url.searchParams.set(
+    'mature',
+    'false'
+  );
   const response =
-    await fetch(url.toString());
-
+    await fetch(
+      url.toString()
+    );
   if(!response.ok){
-
     throw new Error(
       'Openverse API error: ' +
       response.status
     );
   }
-
   const data =
     await response.json();
-
-  return (data.results || []).filter(item => {
-
-    if(!item){
-      return false;
-    }
-
-    const id = getId(item);
-
-    if(!id){
-      return false;
-    }
-
-    if(!item.url && !item.thumbnail){
-      return false;
-    }
-
-    if(seen.has(id)){
-      return false;
-    }
-
-    return true;
-  });
+  return (data.results || [])
+    .filter(item => {
+      if(!item){
+        return false;
+      }
+      const id =
+        getId(item);
+      if(!id){
+        return false;
+      }
+      if(
+        !item.url &&
+        !item.thumbnail
+      ){
+        return false;
+      }
+      if(seen.has(id)){
+        return false;
+      }
+      return true;
+    });
 }
-
-
 /* ------------------------------
    GET CANDIDATES
 ------------------------------ */
-
 async function getCandidates(){
-
   const shuffled =
     [...queries].sort(
       () => Math.random() - 0.5
     );
-
   let candidates = [];
-
   let lastError = null;
-
-  for(const query of shuffled.slice(0,10)){
-
+  for(
+    const query of shuffled.slice(0,10)
+  ){
     const page =
-      1 + Math.floor(Math.random() * 5);
-
+      1 +
+      Math.floor(
+        Math.random() * 5
+      );
     try{
-
       const results =
         await searchOpenverse(
           query,
           page
         );
-
-      candidates.push(...results);
-
-      if(candidates.length >= 30){
+      candidates.push(
+        ...results
+      );
+      if(
+        candidates.length >= 30
+      ){
         break;
       }
-
     }catch(error){
-
       lastError = error;
     }
   }
-
-  if(!candidates.length && lastError){
+  if(
+    !candidates.length &&
+    lastError
+  ){
     throw lastError;
   }
-
   const unique = [];
   const ids = new Set();
-
-  for(const item of candidates){
-
-    const id = getId(item);
-
-    if(!id || ids.has(id)){
+  for(
+    const item of candidates
+  ){
+    const id =
+      getId(item);
+    if(
+      !id ||
+      ids.has(id)
+    ){
       continue;
     }
-
     ids.add(id);
     unique.push(item);
   }
-
   return unique.sort(
-    (a,b) => score(b) - score(a)
+    (a,b) =>
+      score(b) - score(a)
   );
 }
-
-
 /* ------------------------------
    META
 ------------------------------ */
-
 function showMeta(item){
-
   const meta =
-    document.getElementById('meta');
-
+    document.getElementById(
+      'meta'
+    );
   const license =
     item.license ||
     'License information not provided';
-
   const creator =
     item.creator ||
     'Creator not listed';
-
   const source =
     item.source_name ||
     item.provider ||
     'Openverse source';
-
   const sourceUrl =
     item.foreign_landing_url ||
     item.source ||
     '';
-
   meta.innerHTML =
     '<strong>' +
     escapeHtml(
-      item.title || 'Untitled'
+      item.title ||
+      'Untitled'
     ) +
     '</strong><br>' +
-
     'Creator: ' +
-    escapeHtml(creator) +
-
+    escapeHtml(
+      creator
+    ) +
     '<br>' +
-
     'License: ' +
-    escapeHtml(license) +
-
+    escapeHtml(
+      license
+    ) +
     (
       item.license_version
         ? ' ' +
@@ -496,12 +436,11 @@ function showMeta(item){
           )
         : ''
     ) +
-
     '<br>' +
-
     'Source: ' +
-    escapeHtml(source) +
-
+    escapeHtml(
+      source
+    ) +
     (
       sourceUrl
         ? ' · <a target="_blank" ' +
@@ -511,138 +450,169 @@ function showMeta(item){
         : ''
     );
 }
-
-
+/* ------------------------------
+   LOAD IMAGE
+   Try original URL first,
+   then thumbnail.
+------------------------------ */
+function loadImage(item){
+  return new Promise(
+    (resolve,reject) => {
+      const urls = [];
+      if(item.url){
+        urls.push(item.url);
+      }
+      if(
+        item.thumbnail &&
+        item.thumbnail !== item.url
+      ){
+        urls.push(item.thumbnail);
+      }
+      let index = 0;
+      function tryNext(){
+        if(index >= urls.length){
+          reject(
+            new Error(
+              'IMAGE_LOAD_FAILED'
+            )
+          );
+          return;
+        }
+        const url =
+          urls[index++];
+        const image =
+          new Image();
+        image.alt =
+          item.title ||
+          'Random oracle image';
+        image.onload = () => {
+          resolve(image);
+        };
+        image.onerror = () => {
+          tryNext();
+        };
+        image.src = url;
+      }
+      tryNext();
+    }
+  );
+}
 /* ------------------------------
    DRAW
 ------------------------------ */
-
 async function draw(){
-
   const drawButton =
-    document.getElementById('draw');
-
+    document.getElementById(
+      'draw'
+    );
   const againButton =
-    document.getElementById('again');
-
+    document.getElementById(
+      'again'
+    );
   const status =
-    document.getElementById('status');
-
+    document.getElementById(
+      'status'
+    );
   const wrap =
-    document.getElementById('imageWrap');
-
+    document.getElementById(
+      'imageWrap'
+    );
   const meta =
-    document.getElementById('meta');
-
+    document.getElementById(
+      'meta'
+    );
   drawButton.disabled = true;
   againButton.disabled = true;
-
   status.textContent =
     'Finding an image…';
-
   meta.innerHTML = '';
-
   try{
-
     const candidates =
       await getCandidates();
-
     if(!candidates.length){
-
       throw new Error(
         'No image found right now. Please draw again.'
       );
     }
-
+    /*
+      Try several candidates until
+      one actually loads.
+    */
     const top =
       candidates.slice(
         0,
         Math.min(
-          25,
+          15,
           candidates.length
         )
       );
-
-    const selected =
-      top[
-        Math.floor(
-          Math.random() * top.length
-        )
-      ];
-
+    let selected = null;
+    let image = null;
+    for(
+      const candidate of top
+    ){
+      try{
+        image =
+          await loadImage(
+            candidate
+          );
+        selected =
+          candidate;
+        break;
+      }catch(error){
+        const failedId =
+          getId(candidate);
+        if(failedId){
+          seen.add(failedId);
+        }
+      }
+    }
+    if(
+      !selected ||
+      !image
+    ){
+      throw new Error(
+        'IMAGE_LOAD_FAILED'
+      );
+    }
     const selectedId =
       getId(selected);
-
     if(selectedId){
-
       seen.add(selectedId);
       saveSeen();
     }
-
-    const imageUrl =
-      selected.url ||
-      selected.thumbnail;
-
-    const image =
-      new Image();
-
-    image.alt =
-      selected.title ||
-      'Random oracle image';
-
-    image.onload = () => {
-
-      wrap.innerHTML = '';
-
-      wrap.appendChild(image);
-
-      status.textContent =
-        'Image drawn. Let the image speak.';
-
-      againButton.disabled = false;
-    };
-
-    image.onerror = () => {
-
-      wrap.innerHTML =
-        '<div class="placeholder">' +
-        'This image could not be loaded.<br>' +
-        'Please draw again.' +
-        '</div>';
-
-      status.textContent =
-        'Please draw again.';
-
-      againButton.disabled = false;
-    };
-
-    image.src = imageUrl;
-
-    showMeta(selected);
-
-  }catch(error){
-
-    console.error(error);
-
+    wrap.innerHTML = '';
+    wrap.appendChild(
+      image
+    );
     status.textContent =
-      error.message ||
-      'Something went wrong. Please try again.';
-
+      'Image drawn. Let the image speak.';
     againButton.disabled = false;
-
+    showMeta(
+      selected
+    );
+  }catch(error){
+    console.error(error);
+    if(
+      error.message ===
+      'IMAGE_LOAD_FAILED'
+    ){
+      status.textContent =
+        'The images could not be loaded. Please draw again.';
+    }else{
+      status.textContent =
+        error.message ||
+        'Something went wrong. Please try again.';
+    }
+    againButton.disabled = false;
   }finally{
-
     drawButton.disabled = false;
   }
 }
-
-
 /* ------------------------------
-   SAFETY / HTML ESCAPING
+   HTML ESCAPING
 ------------------------------ */
-
 function escapeHtml(value){
-
   return String(value).replace(
     /[&<>'"]/g,
     character => ({
@@ -654,44 +624,33 @@ function escapeHtml(value){
     }[character])
   );
 }
-
 function escapeAttr(value){
   return escapeHtml(value);
 }
-
-
 /* ------------------------------
    BUTTONS
 ------------------------------ */
-
 document
   .getElementById('draw')
   .onclick = draw;
-
 document
   .getElementById('again')
   .onclick = draw;
-
-
 /* ------------------------------
    SERVICE WORKER
 ------------------------------ */
-
-if('serviceWorker' in navigator){
-
+if(
+  'serviceWorker' in navigator
+){
   window.addEventListener(
     'load',
     () => {
-
       navigator.serviceWorker
         .register('sw.js')
         .catch(() => {});
-
     }
   );
 }
-
 </script>
-
 </body>
 </html>
