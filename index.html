@@ -19,7 +19,9 @@
   --line:#46344f
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box
+}
 
 body{
   margin:0;
@@ -155,17 +157,24 @@ button:disabled{
   <section class="card">
 
     <div id="imageWrap" class="image-wrap">
+
       <div class="placeholder">
         Your image will appear here.<br>
         <span>Draw when you are ready.</span>
       </div>
+
     </div>
 
     <div class="actions">
-      <button id="draw">DRAW AN IMAGE</button>
+
+      <button id="draw">
+        DRAW AN IMAGE
+      </button>
+
       <button id="again" class="secondary" disabled>
         DRAW AGAIN
       </button>
+
     </div>
 
     <div id="status" class="status"></div>
@@ -180,14 +189,22 @@ button:disabled{
 
 </main>
 
-<script>
 
-const API = 'https://api.openverse.org/v1/images/';
+<script>
 
 const WORKER =
   'https://super-bonus-a62e.parisashaddel333.workers.dev';
 
+
+const API =
+  WORKER + '?url=' +
+  encodeURIComponent(
+    'https://api.openverse.org/v1/images/'
+  );
+
+
 const queries = [
+
   'people daily life',
   'people conversation',
   'people together',
@@ -234,153 +251,238 @@ const queries = [
   'daily life photograph',
   'street life people',
   'domestic scene people'
+
 ];
+
 
 const positive = [
-  'people','person','human','man','woman','child','children',
-  'family','couple','portrait','face','crowd','worker',
-  'mother','father','parent','lover','bride','groom','baby',
-  'elderly','friend','friends','conversation','meeting',
-  'daily life','street','home','relationship','painting',
-  'postcard','historical','vintage','photograph','artwork'
+
+  'people',
+  'person',
+  'human',
+  'man',
+  'woman',
+  'child',
+  'children',
+  'family',
+  'couple',
+  'portrait',
+  'face',
+  'crowd',
+  'worker',
+  'mother',
+  'father',
+  'parent',
+  'lover',
+  'bride',
+  'groom',
+  'baby',
+  'elderly',
+  'friend',
+  'friends',
+  'conversation',
+  'meeting',
+  'daily life',
+  'street',
+  'home',
+  'relationship',
+  'painting',
+  'postcard',
+  'historical',
+  'vintage',
+  'photograph',
+  'artwork'
+
 ];
+
 
 const negative = [
-  'insect','spider','butterfly','bee','wasp','fly',
-  'motorcycle','motorbike','car','truck','bus','train',
-  'airplane','aircraft','vehicle','automobile',
-  'diagram','graph','chart','formula','circuit',
-  'machine','engine','machinery','equipment',
-  'blueprint','scientific'
+
+  'insect',
+  'spider',
+  'butterfly',
+  'bee',
+  'wasp',
+  'fly',
+  'motorcycle',
+  'motorbike',
+  'car',
+  'truck',
+  'bus',
+  'train',
+  'airplane',
+  'aircraft',
+  'vehicle',
+  'automobile',
+  'diagram',
+  'graph',
+  'chart',
+  'formula',
+  'circuit',
+  'machine',
+  'engine',
+  'machinery',
+  'equipment',
+  'blueprint',
+  'scientific'
+
 ];
 
 
-/* ------------------------------
-   MEMORY
------------------------------- */
-
 let seen = new Set(
+
   JSON.parse(
     localStorage.getItem('hestia_seen') || '[]'
   )
+
 );
+
 
 function saveSeen(){
 
   localStorage.setItem(
     'hestia_seen',
-    JSON.stringify([...seen].slice(-3000))
+    JSON.stringify(
+      [...seen].slice(-3000)
+    )
   );
+
 }
 
-
-/* ------------------------------
-   ID
------------------------------- */
 
 function getId(item){
 
   return item.id ||
          item.identifier ||
          null;
+
 }
 
-
-/* ------------------------------
-   SCORE
------------------------------- */
 
 function score(item){
 
   const tags =
     Array.isArray(item.tags)
+
       ? item.tags.map(tag =>
           typeof tag === 'string'
             ? tag
             : (tag.name || '')
         ).join(' ')
+
       : '';
 
-  const text = (
-    (item.title || '') + ' ' +
-    (item.description || '') + ' ' +
-    tags
-  ).toLowerCase();
+
+  const text =
+    (
+      (item.title || '') +
+      ' ' +
+      (item.description || '') +
+      ' ' +
+      tags
+    ).toLowerCase();
+
 
   let value = 0;
+
 
   for(const word of positive){
 
     if(text.includes(word)){
       value += 2;
     }
+
   }
+
 
   for(const word of negative){
 
     if(text.includes(word)){
       value -= 4;
     }
+
   }
+
 
   if(item.width && item.height){
 
     const ratio =
       item.width / item.height;
 
-    if(ratio > 0.4 && ratio < 2.8){
+    if(
+      ratio > 0.4 &&
+      ratio < 2.8
+    ){
+
       value += 1;
+
     }
+
   }
 
+
   return value;
+
 }
 
 
-/* ------------------------------
-   OPENVERSE SEARCH
------------------------------- */
-
 async function searchOpenverse(query,page){
 
-  const url =
-    new URL(API);
+  const target =
+    new URL(
+      'https://api.openverse.org/v1/images/'
+    );
 
-  url.searchParams.set(
+
+  target.searchParams.set(
     'q',
     query
   );
 
-  url.searchParams.set(
+
+  target.searchParams.set(
     'page',
     page
   );
 
-  url.searchParams.set(
+
+  target.searchParams.set(
     'page_size',
     '30'
   );
 
-  url.searchParams.set(
+
+  target.searchParams.set(
     'mature',
     'false'
   );
 
-  const response =
-    await fetch(
-      url.toString()
+
+  const proxyUrl =
+    WORKER +
+    '?url=' +
+    encodeURIComponent(
+      target.toString()
     );
+
+
+  const response =
+    await fetch(proxyUrl);
+
 
   if(!response.ok){
 
     throw new Error(
-      'Openverse API error: ' +
+      'Openverse API Error ' +
       response.status
     );
+
   }
+
 
   const data =
     await response.json();
+
 
   return (data.results || [])
     .filter(item => {
@@ -389,32 +491,37 @@ async function searchOpenverse(query,page){
         return false;
       }
 
+
       const id =
         getId(item);
+
 
       if(!id){
         return false;
       }
 
+
       if(
         !item.url &&
         !item.thumbnail
       ){
+
         return false;
+
       }
+
 
       if(seen.has(id)){
         return false;
       }
 
+
       return true;
+
     });
+
 }
 
-
-/* ------------------------------
-   GET CANDIDATES
------------------------------- */
 
 async function getCandidates(){
 
@@ -423,9 +530,11 @@ async function getCandidates(){
       () => Math.random() - 0.5
     );
 
+
   let candidates = [];
 
   let lastError = null;
+
 
   for(
     const query of shuffled.slice(0,10)
@@ -437,6 +546,7 @@ async function getCandidates(){
         Math.random() * 5
       );
 
+
     try{
 
       const results =
@@ -445,21 +555,28 @@ async function getCandidates(){
           page
         );
 
+
       candidates.push(
         ...results
       );
 
+
       if(
         candidates.length >= 30
       ){
+
         break;
+
       }
 
     }catch(error){
 
       lastError = error;
+
     }
+
   }
+
 
   if(
     !candidates.length &&
@@ -467,10 +584,14 @@ async function getCandidates(){
   ){
 
     throw lastError;
+
   }
 
+
   const unique = [];
+
   const ids = new Set();
+
 
   for(
     const item of candidates
@@ -479,28 +600,31 @@ async function getCandidates(){
     const id =
       getId(item);
 
+
     if(
       !id ||
       ids.has(id)
     ){
+
       continue;
+
     }
+
 
     ids.add(id);
 
     unique.push(item);
+
   }
+
 
   return unique.sort(
     (a,b) =>
       score(b) - score(a)
   );
+
 }
 
-
-/* ------------------------------
-   META
------------------------------- */
 
 function showMeta(item){
 
@@ -509,25 +633,31 @@ function showMeta(item){
       'meta'
     );
 
+
   const license =
     item.license ||
     'License information not provided';
 
+
   const creator =
     item.creator ||
     'Creator not listed';
+
 
   const source =
     item.source_name ||
     item.provider ||
     'Openverse source';
 
+
   const sourceUrl =
     item.foreign_landing_url ||
     item.source ||
     '';
 
+
   meta.innerHTML =
+
     '<strong>' +
     escapeHtml(
       item.title ||
@@ -539,7 +669,6 @@ function showMeta(item){
     escapeHtml(
       creator
     ) +
-
     '<br>' +
 
     'License: ' +
@@ -565,18 +694,16 @@ function showMeta(item){
 
     (
       sourceUrl
-        ? ' · <a target="_blank" ' +
-          'rel="noopener" href="' +
-          escapeAttr(sourceUrl) +
+        ? ' · <a target="_blank" rel="noopener" href="' +
+          escapeAttr(
+            sourceUrl
+          ) +
           '">open original</a>'
         : ''
     );
+
 }
 
-
-/* ------------------------------
-   LOAD IMAGE THROUGH WORKER
------------------------------- */
 
 function loadImage(item){
 
@@ -585,16 +712,21 @@ function loadImage(item){
 
       const urls = [];
 
+
       if(item.url){
 
         urls.push(
+
           WORKER +
           '?url=' +
           encodeURIComponent(
             item.url
           )
+
         );
+
       }
+
 
       if(
         item.thumbnail &&
@@ -602,19 +734,26 @@ function loadImage(item){
       ){
 
         urls.push(
+
           WORKER +
           '?url=' +
           encodeURIComponent(
             item.thumbnail
           )
+
         );
+
       }
+
 
       let index = 0;
 
+
       function tryNext(){
 
-        if(index >= urls.length){
+        if(
+          index >= urls.length
+        ){
 
           reject(
             new Error(
@@ -623,38 +762,49 @@ function loadImage(item){
           );
 
           return;
+
         }
+
 
         const url =
           urls[index++];
 
+
         const image =
           new Image();
+
 
         image.alt =
           item.title ||
           'Random oracle image';
 
+
         image.onload = () => {
+
           resolve(image);
+
         };
+
 
         image.onerror = () => {
+
           tryNext();
+
         };
 
+
         image.src = url;
+
       }
 
+
       tryNext();
+
     }
   );
+
 }
 
-
-/* ------------------------------
-   DRAW
------------------------------- */
 
 async function draw(){
 
@@ -663,50 +813,59 @@ async function draw(){
       'draw'
     );
 
+
   const againButton =
     document.getElementById(
       'again'
     );
+
 
   const status =
     document.getElementById(
       'status'
     );
 
+
   const wrap =
     document.getElementById(
       'imageWrap'
     );
+
 
   const meta =
     document.getElementById(
       'meta'
     );
 
+
   drawButton.disabled = true;
+
   againButton.disabled = true;
+
 
   status.textContent =
     'Finding an image…';
 
+
   meta.innerHTML = '';
+
 
   try{
 
     const candidates =
       await getCandidates();
 
-    if(!candidates.length){
+
+    if(
+      !candidates.length
+    ){
 
       throw new Error(
         'No image found right now. Please draw again.'
       );
+
     }
 
-    /*
-      Try several candidates until
-      one actually loads.
-    */
 
     const top =
       candidates.slice(
@@ -717,8 +876,11 @@ async function draw(){
         )
       );
 
+
     let selected = null;
+
     let image = null;
+
 
     for(
       const candidate of top
@@ -731,8 +893,10 @@ async function draw(){
             candidate
           );
 
+
         selected =
           candidate;
+
 
         break;
 
@@ -741,12 +905,19 @@ async function draw(){
         const failedId =
           getId(candidate);
 
+
         if(failedId){
-          seen.add(failedId);
+
+          seen.add(
+            failedId
+          );
+
         }
 
       }
+
     }
+
 
     if(
       !selected ||
@@ -756,16 +927,25 @@ async function draw(){
       throw new Error(
         'IMAGE_LOAD_FAILED'
       );
+
     }
+
 
     const selectedId =
       getId(selected);
 
+
     if(selectedId){
 
-      seen.add(selectedId);
+      seen.add(
+        selectedId
+      );
+
+
       saveSeen();
+
     }
+
 
     wrap.innerHTML = '';
 
@@ -773,18 +953,24 @@ async function draw(){
       image
     );
 
+
     status.textContent =
       'Image drawn. Let the image speak.';
 
-    againButton.disabled = false;
+
+    againButton.disabled =
+      false;
+
 
     showMeta(
       selected
     );
 
+
   }catch(error){
 
     console.error(error);
+
 
     if(
       error.message ===
@@ -799,57 +985,60 @@ async function draw(){
       status.textContent =
         error.message ||
         'Something went wrong. Please try again.';
+
     }
 
-    againButton.disabled = false;
+
+    againButton.disabled =
+      false;
 
   }finally{
 
-    drawButton.disabled = false;
+    drawButton.disabled =
+      false;
+
   }
+
 }
 
-
-/* ------------------------------
-   HTML ESCAPING
------------------------------- */
 
 function escapeHtml(value){
 
   return String(value).replace(
     /[&<>'"]/g,
     character => ({
+
       '&':'&amp;',
       '<':'&lt;',
       '>':'&gt;',
       "'":'&#39;',
       '"':'&quot;'
+
     }[character])
+
   );
+
 }
+
 
 function escapeAttr(value){
 
-  return escapeHtml(value);
+  return escapeHtml(
+    value
+  );
+
 }
 
 
-/* ------------------------------
-   BUTTONS
------------------------------- */
-
-document
-  .getElementById('draw')
-  .onclick = draw;
-
-document
-  .getElementById('again')
-  .onclick = draw;
+document.getElementById(
+  'draw'
+).onclick = draw;
 
 
-/* ------------------------------
-   SERVICE WORKER
------------------------------- */
+document.getElementById(
+  'again'
+).onclick = draw;
+
 
 if(
   'serviceWorker' in navigator
@@ -865,6 +1054,7 @@ if(
 
     }
   );
+
 }
 
 </script>
