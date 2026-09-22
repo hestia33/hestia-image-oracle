@@ -184,6 +184,9 @@ button:disabled{
 
 const API = 'https://api.openverse.org/v1/images/';
 
+const WORKER =
+  'https://super-bonus-a62e.parisashaddel333.workers.dev';
+
 const queries = [
   'people daily life',
   'people conversation',
@@ -572,9 +575,7 @@ function showMeta(item){
 
 
 /* ------------------------------
-   LOAD IMAGE
-   Try original URL first,
-   then thumbnail.
+   LOAD IMAGE THROUGH WORKER
 ------------------------------ */
 
 function loadImage(item){
@@ -585,14 +586,28 @@ function loadImage(item){
       const urls = [];
 
       if(item.url){
-        urls.push(item.url);
+
+        urls.push(
+          WORKER +
+          '?url=' +
+          encodeURIComponent(
+            item.url
+          )
+        );
       }
 
       if(
         item.thumbnail &&
         item.thumbnail !== item.url
       ){
-        urls.push(item.thumbnail);
+
+        urls.push(
+          WORKER +
+          '?url=' +
+          encodeURIComponent(
+            item.thumbnail
+          )
+        );
       }
 
       let index = 0;
