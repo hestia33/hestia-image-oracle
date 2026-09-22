@@ -1,0 +1,9 @@
+{
+  "name":"HESTIA IMAGE ORACLE",
+  "short_name":"HESTIA",
+  "start_url":".",
+  "display":"standalone",
+  "background_color":"#120d18",
+  "theme_color":"#24152f",
+  "icons":[]
+}
