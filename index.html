@@ -86,8 +86,20 @@ button:active {
   transform: scale(0.97);
 }
 
-.source {
+button:disabled {
+  opacity: 0.6;
+}
+
+.status {
   margin-top: 12px;
+  min-height: 20px;
+  color: #bca9c6;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+}
+
+.source {
+  margin-top: 8px;
   font-family: system-ui, sans-serif;
   font-size: 11px;
   color: #8f7c98;
@@ -122,9 +134,11 @@ button:active {
 
   </div>
 
-  <button onclick="drawImage()">
+  <button id="drawButton" onclick="drawImage()">
     DRAW AN IMAGE
   </button>
+
+  <div class="status" id="status"></div>
 
   <div class="source" id="source"></div>
 
@@ -133,91 +147,353 @@ button:active {
 
 <script>
 
-const images = [
+const API =
+  "https://commons.wikimedia.org/w/api.php";
 
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Family_portrait.jpg",
-    source: "Wikimedia Commons"
-  },
 
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/People_engaging_in_conversation.jpg",
-    source: "Wikimedia Commons"
-  },
+const searches = [
 
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Photo_of_children_playing.jpg",
-    source: "Wikimedia Commons"
-  },
-
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Family_of_three_persons.jpg",
-    source: "Wikimedia Commons"
-  },
-
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Children_Playing.jpg",
-    source: "Wikimedia Commons"
-  },
-
-  {
-    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kids_Playing_.jpg",
-    source: "Wikimedia Commons"
-  }
+  "people daily life",
+  "people conversation",
+  "people together",
+  "family",
+  "family life",
+  "friends together",
+  "couple",
+  "people portrait",
+  "woman portrait",
+  "man portrait",
+  "people meeting",
+  "people walking",
+  "people sitting",
+  "people talking",
+  "people at home",
+  "people in street",
+  "people in market",
+  "people celebrating",
+  "people reading",
+  "people working",
+  "children playing",
+  "mother child",
+  "father child",
+  "old people",
+  "young people",
+  "people in nature",
+  "human relationship",
+  "human connection",
+  "everyday life photograph",
+  "vintage people photograph",
+  "historical people"
 
 ];
 
 
-function drawImage() {
+let lastImage = "";
 
-  const randomIndex =
+
+function randomItem(array) {
+
+  return array[
     Math.floor(
-      Math.random() * images.length
+      Math.random() * array.length
+    )
+  ];
+
+}
+
+
+async function searchCommons(searchText) {
+
+  const params = new URLSearchParams({
+
+    action: "query",
+
+    format: "json",
+
+    origin: "*",
+
+    generator: "search",
+
+    gsrsearch: searchText,
+
+    gsrnamespace: "6",
+
+    gsrlimit: "50",
+
+    prop: "imageinfo",
+
+    iiprop: "url|mime",
+
+    iiurlwidth: "1000"
+
+  });
+
+
+  const response =
+    await fetch(
+      API + "?" + params.toString()
     );
 
-  const selected =
-    images[randomIndex];
 
-  const image =
-    document.createElement("img");
+  if (!response.ok) {
 
-  image.src =
-    selected.url;
+    throw new Error(
+      "Commons API error " +
+      response.status
+    );
 
-  image.alt =
-    "Random human life image";
-
-  image.onload = function() {
-
-    const box =
-      document.getElementById("imageBox");
-
-    box.innerHTML = "";
-
-    box.appendChild(image);
-
-    document.getElementById("source").innerHTML =
-      'Source: <a href="' +
-      selected.url +
-      '" target="_blank" rel="noopener">' +
-      selected.source +
-      '</a>';
-
-  };
+  }
 
 
-  image.onerror = function() {
+  const data =
+    await response.json();
 
-    const box =
-      document.getElementById("imageBox");
 
-    box.innerHTML =
-      '<div class="placeholder">' +
-      'This image could not be loaded.<br>' +
-      'Please draw again.' +
-      '</div>';
+  if (!data.query ||
+      !data.query.pages) {
 
-  };
+    return [];
+
+  }
+
+
+  const pages =
+    Object.values(
+      data.query.pages
+    );
+
+
+  return pages.filter(page => {
+
+    if (!page.imageinfo ||
+        !page.imageinfo[0]) {
+
+      return false;
+
+    }
+
+
+    const info =
+      page.imageinfo[0];
+
+
+    if (!info.thumburl) {
+
+      return false;
+
+    }
+
+
+    if (!info.mime ||
+        !info.mime.startsWith("image/")) {
+
+      return false;
+
+    }
+
+
+    if (
+      info.mime === "image/svg+xml"
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
+
+  });
+
+}
+
+
+async function drawImage() {
+
+  const button =
+    document.getElementById(
+      "drawButton"
+    );
+
+  const box =
+    document.getElementById(
+      "imageBox"
+    );
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+  const source =
+    document.getElementById(
+      "source"
+    );
+
+
+  button.disabled = true;
+
+  status.textContent =
+    "Finding an image…";
+
+  source.innerHTML = "";
+
+
+  try {
+
+    let candidates = [];
+
+
+    const shuffled =
+      [...searches].sort(
+        () => Math.random() - 0.5
+      );
+
+
+    for (
+      const searchText
+      of shuffled.slice(0, 6)
+    ) {
+
+      try {
+
+        const results =
+          await searchCommons(
+            searchText
+          );
+
+
+        candidates.push(
+          ...results
+        );
+
+      } catch (error) {
+
+        console.log(
+          "Search failed:",
+          searchText,
+          error
+        );
+
+      }
+
+    }
+
+
+    candidates =
+      candidates.filter(
+        (item, index, array) => {
+
+          const url =
+            item.imageinfo[0].thumburl;
+
+          return (
+            array.findIndex(
+              other =>
+                other.imageinfo[0].thumburl
+                === url
+            ) === index
+          );
+
+        }
+      );
+
+
+    if (!candidates.length) {
+
+      throw new Error(
+        "No images found"
+      );
+
+    }
+
+
+    const available =
+      candidates.filter(
+        item =>
+          item.imageinfo[0].thumburl
+          !== lastImage
+      );
+
+
+    const pool =
+      available.length
+        ? available
+        : candidates;
+
+
+    const selected =
+      randomItem(pool);
+
+
+    const info =
+      selected.imageinfo[0];
+
+
+    const image =
+      new Image();
+
+
+    image.alt =
+      selected.title
+      || "Random human life image";
+
+
+    image.onload =
+      function() {
+
+        box.innerHTML = "";
+
+        box.appendChild(
+          image
+        );
+
+        status.textContent =
+          "Image drawn.";
+
+        source.innerHTML =
+          'Source: <a href="' +
+          info.descriptionurl +
+          '" target="_blank" rel="noopener">' +
+          'Wikimedia Commons' +
+          '</a>';
+
+        lastImage =
+          info.thumburl;
+
+        button.disabled =
+          false;
+
+      };
+
+
+    image.onerror =
+      function() {
+
+        status.textContent =
+          "This image could not be loaded. Drawing another…";
+
+        button.disabled =
+          false;
+
+      };
+
+
+    image.src =
+      info.thumburl;
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "Could not find an image. Please try again.";
+
+    button.disabled =
+      false;
+
+  }
 
 }
 
