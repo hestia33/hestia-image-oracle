@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,12 +60,6 @@
       object-fit: contain;
     }
 
-    .placeholder {
-      color: #8b796b;
-      padding: 30px;
-      line-height: 1.8;
-    }
-
     button {
       border: none;
       background: #6f5748;
@@ -91,10 +85,6 @@
       font-size: 13px;
       color: #98877b;
     }
-
-    .loading {
-      color: #806e61;
-    }
   </style>
 </head>
 
@@ -109,13 +99,10 @@
     </div>
 
     <div class="image-box" id="imageBox">
-      <div class="placeholder loading">
-        در حال آماده‌سازی تصاویر...
-      </div>
     </div>
 
     <button id="drawButton" disabled>
-      دریافت تصویر
+      Draw an Image
     </button>
 
     <div class="counter" id="counter"></div>
@@ -136,10 +123,6 @@
     const drawButton = document.getElementById("drawButton");
     const counter = document.getElementById("counter");
 
-
-    /*
-      پیدا کردن خودکار تمام تصاویر داخل پوشه images
-    */
 
     async function loadImages() {
 
@@ -163,61 +146,41 @@
           })
           .map(file => file.download_url);
 
+
         if (images.length === 0) {
 
-          imageBox.innerHTML = `
-            <div class="placeholder">
-              هنوز تصویری در بانک تصاویر پیدا نشد.
-            </div>
-          `;
-
-          counter.textContent = "";
+          counter.textContent = "No images in the image bank yet.";
 
           return;
         }
 
+
         counter.textContent =
-          `${images.length} تصویر در بانک تصاویر`;
+          `${images.length} images in the image bank`;
 
         drawButton.disabled = false;
-
-        drawImage();
 
       } catch (error) {
 
         console.error(error);
 
-        imageBox.innerHTML = `
-          <div class="placeholder">
-            در بارگذاری تصاویر مشکلی پیش آمد.
-            <br>
-            لطفاً چند لحظه بعد دوباره امتحان کن.
-          </div>
-        `;
-
-        counter.textContent = "";
+        counter.textContent =
+          "Unable to load the image bank.";
 
       }
 
     }
 
 
-    /*
-      انتخاب تصادفی تصویر
-    */
-
     function drawImage() {
 
       if (images.length === 0) return;
+
 
       let availableImages = images.filter(
         image => !recentImages.includes(image)
       );
 
-      /*
-        اگر همه تصاویر اخیراً دیده شده باشند،
-        دوباره از کل بانک استفاده می‌کنیم.
-      */
 
       if (availableImages.length === 0) {
 
@@ -235,25 +198,13 @@
         availableImages[randomIndex];
 
 
-      /*
-        ذخیره تصویر در لیست تصاویر اخیر
-      */
-
       recentImages.push(selectedImage);
 
-
-      /*
-        فقط 10 تصویر اخیر را به خاطر می‌سپاریم
-      */
 
       if (recentImages.length > 10) {
         recentImages.shift();
       }
 
-
-      /*
-        نمایش تصویر
-      */
 
       imageBox.innerHTML = "";
 
@@ -270,10 +221,6 @@
 
     drawButton.addEventListener("click", drawImage);
 
-
-    /*
-      شروع برنامه
-    */
 
     loadImages();
 
