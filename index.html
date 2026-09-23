@@ -7,6 +7,10 @@
 <title>Hestia Image Oracle</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -19,21 +23,33 @@ body {
 }
 
 .container {
-  width: 90%;
-  max-width: 700px;
+  width: 92%;
+  max-width: 720px;
   text-align: center;
+}
+
+.moon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.brand {
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  color: #bca9c6;
 }
 
 h1 {
   font-size: 28px;
   font-weight: normal;
-  margin-bottom: 25px;
+  margin: 8px 0 24px;
 }
 
 .image-box {
   width: 100%;
   min-height: 55vh;
   background: #21152b;
+  border: 1px solid #46344f;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -42,6 +58,7 @@ h1 {
 }
 
 .image-box img {
+  display: block;
   width: 100%;
   max-height: 70vh;
   object-fit: contain;
@@ -50,6 +67,7 @@ h1 {
 .placeholder {
   color: #bca9c6;
   font-size: 18px;
+  line-height: 1.7;
   padding: 40px;
 }
 
@@ -65,7 +83,18 @@ button {
 }
 
 button:active {
-  transform: scale(.97);
+  transform: scale(0.97);
+}
+
+.source {
+  margin-top: 12px;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: #8f7c98;
+}
+
+.source a {
+  color: #cdb1d8;
 }
 </style>
 </head>
@@ -74,56 +103,121 @@ button:active {
 
 <div class="container">
 
-<h1>HESTIA · IMAGE ORACLE</h1>
+  <div class="moon">☾</div>
 
-<div class="image-box" id="imageBox">
-  <div class="placeholder">
-    Your image will appear here.
+  <div class="brand">
+    HESTIA
   </div>
+
+  <h1>
+    Image Oracle
+  </h1>
+
+  <div class="image-box" id="imageBox">
+
+    <div class="placeholder">
+      Your image will appear here.<br>
+      Draw when you are ready.
+    </div>
+
+  </div>
+
+  <button onclick="drawImage()">
+    DRAW AN IMAGE
+  </button>
+
+  <div class="source" id="source"></div>
+
 </div>
 
-<button onclick="drawImage()">
-  DRAW AN IMAGE
-</button>
-
-</div>
 
 <script>
 
 const images = [
 
-"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Family_portrait.jpg/800px-Family_portrait.jpg",
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Family_portrait.jpg",
+    source: "Wikimedia Commons"
+  },
 
-"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/People_talking.jpg/800px-People_talking.jpg",
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/People_engaging_in_conversation.jpg",
+    source: "Wikimedia Commons"
+  },
 
-"https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Children_playing.jpg/800px-Children_playing.jpg",
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Photo_of_children_playing.jpg",
+    source: "Wikimedia Commons"
+  },
 
-"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Street_scene.jpg/800px-Street_scene.jpg",
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Family_of_three_persons.jpg",
+    source: "Wikimedia Commons"
+  },
 
-"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/People_in_a_market.jpg/800px-People_in_a_market.jpg"
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Children_Playing.jpg",
+    source: "Wikimedia Commons"
+  },
+
+  {
+    url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kids_Playing_.jpg",
+    source: "Wikimedia Commons"
+  }
 
 ];
+
 
 function drawImage() {
 
   const randomIndex =
-    Math.floor(Math.random() * images.length);
+    Math.floor(
+      Math.random() * images.length
+    );
+
+  const selected =
+    images[randomIndex];
 
   const image =
     document.createElement("img");
 
   image.src =
-    images[randomIndex];
+    selected.url;
 
   image.alt =
-    "Random everyday life image";
+    "Random human life image";
 
-  const box =
-    document.getElementById("imageBox");
+  image.onload = function() {
 
-  box.innerHTML = "";
+    const box =
+      document.getElementById("imageBox");
 
-  box.appendChild(image);
+    box.innerHTML = "";
+
+    box.appendChild(image);
+
+    document.getElementById("source").innerHTML =
+      'Source: <a href="' +
+      selected.url +
+      '" target="_blank" rel="noopener">' +
+      selected.source +
+      '</a>';
+
+  };
+
+
+  image.onerror = function() {
+
+    const box =
+      document.getElementById("imageBox");
+
+    box.innerHTML =
+      '<div class="placeholder">' +
+      'This image could not be loaded.<br>' +
+      'Please draw again.' +
+      '</div>';
+
+  };
 
 }
 
