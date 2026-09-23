@@ -156,195 +156,230 @@ const API = "https://commons.wikimedia.org/w/api.php";
 /*
   HESTIA IMAGE WORLDS
 
-  These are deliberately mixed:
-  - people alone
+  The searches below focus on scenes with a
+  narrative hook: something appears to be happening,
+  but the complete story is unknown.
+
+  The collection deliberately mixes:
+  - solitude
   - two people
   - groups
   - family
   - work
-  - everyday life
-  - waiting / meeting / leaving
-  - houses and rooms
+  - waiting
+  - meetings
+  - departures
+  - public places
+  - homes
   - old photographs
   - contemporary documentary scenes
-  - objects with human context
-  - paintings and historical scenes
-  - unusual but still meaningful situations
+  - paintings
 */
 
 const searches = [
 
-  // PEOPLE ALONE
-  "person alone",
-  "woman alone",
-  "man alone",
-  "person sitting alone",
-  "person standing alone",
-  "person walking alone",
-  "person looking window",
+  // SOLITUDE / ONE PERSON
+
+  "person waiting at station",
+  "person waiting street",
+  "person sitting alone public place",
+  "person looking through window",
+  "person standing doorway",
   "person looking away",
-  "person waiting",
-  "person sitting street",
-  "person sitting room",
-  "person walking street",
-
-  // TWO PEOPLE
-  "two people sitting",
-  "two people talking",
-  "two people walking",
-  "two people waiting",
-  "two people meeting",
-  "two people standing",
-  "two people looking",
-  "two people at home",
-  "couple sitting",
-  "couple walking",
-  "elderly couple",
-  "two strangers",
-
-  // GROUPS
-  "people gathering",
-  "people standing together",
-  "people sitting together",
-  "people waiting",
-  "people in street",
-  "people at table",
-  "people in house",
-  "people at work",
-  "people talking",
-  "crowd street",
-  "small group people",
-
-  // FAMILY
-  "family outside house",
-  "family at home",
-  "family sitting",
-  "family gathering",
-  "family photograph",
-  "family portrait",
-  "mother child",
-  "father child",
-  "siblings",
-  "parents children",
-
-  // WORK / EVERYDAY LIFE
-  "person working",
-  "woman working",
-  "man working",
-  "people at work",
-  "shopkeeper",
-  "worker street",
-  "person in office",
-  "person in kitchen",
-  "person reading",
-  "person writing",
-  "person cooking",
-  "people eating",
-
-  // MOVEMENT / TRANSITION
-  "people waiting station",
-  "person at train station",
-  "person leaving",
-  "person arriving",
-  "people meeting station",
-  "farewell people",
-  "people walking away",
+  "person walking away",
   "person with suitcase",
-  "traveler waiting",
-  "people traveling",
+  "person sitting train station",
+  "person standing in crowd",
+  "one person separated from group",
+  "person waiting room",
+  "person sitting cafe",
+  "person reading alone",
+  "person looking outside window",
 
-  // HOMES / ROOMS / SPACES
-  "old house interior",
-  "house interior people",
-  "room with people",
-  "empty room house",
-  "living room people",
-  "kitchen people",
-  "person doorway",
-  "person near door",
-  "person window house",
-  "people in courtyard",
-  "house courtyard",
 
-  // OBJECTS WITH HUMAN CONTEXT
-  "old letter photograph",
+  // TWO PEOPLE / RELATIONSHIPS
+
+  "two people talking street",
+  "two people talking indoors",
+  "two people meeting",
+  "two people waiting together",
+  "two people standing apart",
+  "two people walking together",
+  "two people looking at each other",
+  "two people sitting together",
+  "two people at table",
+  "two people saying goodbye",
+  "two people greeting",
+  "two people at train station",
+  "two strangers talking",
+  "couple sitting together",
+  "couple walking street",
+  "elderly couple photograph",
+
+
+  // GROUPS / SOCIAL SCENES
+
+  "people meeting street",
+  "people waiting station",
+  "people gathering outside",
+  "people standing together",
+  "small group people talking",
+  "people sitting around table",
+  "people at cafe",
+  "people in public place",
+  "people watching something",
+  "people looking at camera",
+  "one person in crowd",
+  "person separated from group",
+  "people meeting doorway",
+  "people talking outside house",
+  "people gathered around person",
+
+
+  // FAMILY / HOME
+
+  "family outside house",
+  "family in courtyard",
+  "family sitting at table",
+  "family at home",
+  "family gathering",
+  "family portrait old house",
+  "family photograph outside house",
+  "parents children at home",
+  "siblings together photograph",
+  "mother child at home",
+  "father child at home",
+  "family looking at camera",
+  "family standing outside",
+  "family sitting outside house",
+
+
+  // WORK / EVERYDAY HUMAN LIFE
+
+  "people at work candid",
+  "worker talking to customer",
+  "shopkeeper customer",
+  "person working in shop",
+  "people working together",
+  "worker with another person",
+  "person working at table",
+  "people at workplace",
+  "person cooking with people",
+  "people eating together",
+  "person writing at desk",
+  "person reading at work",
+  "people talking at work",
+  "street vendor customer",
+  "worker standing with people",
+
+
+  // WAITING / ARRIVING / LEAVING / TRAVEL
+
+  "person waiting at train station",
+  "people waiting at train station",
+  "people waiting bus stop",
+  "person with suitcase station",
+  "traveler waiting station",
+  "people arriving station",
+  "people leaving station",
+  "people meeting at station",
+  "people saying goodbye station",
+  "person walking with suitcase",
+  "person leaving house",
+  "person arriving home",
+  "people meeting at doorway",
+  "person waiting airport",
+  "traveler sitting waiting",
+
+
+  // HOMES WITH HUMAN CONTEXT
+
+  "person standing in old house",
+  "person in doorway old house",
+  "people in old house",
+  "people in courtyard old house",
+  "family outside old house",
+  "person looking from window",
+  "people sitting in old room",
+  "people around table old house",
+  "family room photograph",
+  "people inside house photograph",
+
+
+  // OLD PHOTOGRAPHS / HISTORICAL HUMAN MOMENTS
+
   "old family photograph",
-  "photograph on table",
-  "letters on table",
-  "suitcase room",
-  "shoes by door",
-  "empty chair room",
-  "table after meal",
-  "personal belongings room",
-  "old objects house",
-
-  // OLD / HISTORICAL
-  "vintage people photograph",
-  "old people photograph",
+  "old family portrait",
+  "vintage family photograph",
   "historic family photograph",
-  "historical people",
-  "old street photograph",
-  "old house people",
-  "old village people",
+  "old photograph people outside house",
+  "vintage people outside house",
+  "old photograph people at home",
   "vintage couple photograph",
-  "vintage everyday life",
-  "historical everyday life",
+  "old photograph two people",
+  "old photograph people gathering",
+  "historical people photograph",
+  "historic street photograph people",
+  "vintage people waiting",
+  "old photograph people working",
+  "vintage everyday life people",
+  "historical everyday life people",
+
 
   // CONTEMPORARY DOCUMENTARY
-  "color documentary people",
-  "candid people photograph",
-  "documentary everyday life",
-  "street documentary people",
-  "candid street photograph",
-  "people in public place",
-  "ordinary people photograph",
-  "everyday life photograph",
-  "human moment photograph",
 
-  // PLACES WITH A HUMAN STORY
-  "people train station",
-  "people bus stop",
-  "people cafe",
-  "people restaurant",
-  "people waiting room",
-  "people doorway",
-  "people street corner",
-  "person by sea",
-  "person in garden",
-  "person in countryside",
+  "candid color documentary person",
+  "candid color documentary two people",
+  "color documentary people meeting",
+  "color documentary people waiting",
+  "color documentary family",
+  "contemporary documentary person alone",
+  "contemporary documentary two people",
+  "contemporary documentary group people",
+  "street documentary person",
+  "street documentary two people",
+  "documentary photograph people waiting",
+  "documentary photograph people meeting",
+  "documentary photograph people working",
+  "documentary photograph family",
+  "candid everyday life people",
 
-  // ART / PAINTINGS
+
+  // PUBLIC / EVERYDAY PLACES
+
+  "people at bus stop",
+  "people at train station",
+  "people in waiting room",
+  "people at cafe",
+  "people at restaurant",
+  "people outside shop",
+  "people on street corner",
+  "people entering building",
+  "people leaving building",
+  "person near doorway public place",
+  "person sitting public place",
+  "people sitting public place",
+
+
+  // ART / PAINTINGS WITH HUMAN STORIES
+
+  "painting two people in room",
   "painting people in room",
   "painting family scene",
+  "painting family at table",
   "painting people gathering",
-  "painting everyday life",
+  "painting person looking",
+  "painting person waiting",
+  "painting people meeting",
+  "painting people outside house",
   "historical painting people",
   "genre painting people",
-  "painting two people",
-  "painting person alone",
+  "painting everyday life"
 
-  // SLIGHTLY UNUSUAL BUT STILL HUMAN
-  "unusual people photograph",
-  "strange everyday photograph",
-  "unusual everyday scene",
-  "people unusual situation",
-  "ambiguous people photograph",
-  "unusual gathering people",
-  "candid unusual moment",
-  "mysterious everyday scene"
 
 ];
 
 let lastImage = "";
-
-
-/*
-  Keep a memory of previously seen images.
-
-  This is intentionally simple.
-  The browser remembers images already drawn on this device,
-  so Hestia is less likely to show the same image repeatedly.
-*/
 
 let seenImages = [];
 
@@ -429,11 +464,6 @@ function rememberImage(url) {
     seenImages.push(url);
   }
 
-  /*
-    Keep the memory manageable.
-    We remember the most recent 150 images.
-  */
-
   if (seenImages.length > 150) {
     seenImages = seenImages.slice(-150);
   }
@@ -474,11 +504,8 @@ async function drawImage() {
     let candidates = [];
 
     /*
-      Pick several completely different search worlds
-      for each draw.
-
-      This keeps the result varied without making the
-      system complicated.
+      Randomly mix different narrative worlds
+      for every draw.
     */
 
     const shuffledSearches =
@@ -486,9 +513,10 @@ async function drawImage() {
         () => Math.random() - 0.5
       );
 
+
     /*
-      Only use a small number of searches per draw.
-      This keeps the API request light and reduces errors.
+      Seven searches per draw keep the API light
+      while preserving variety.
     */
 
     for (
@@ -542,8 +570,7 @@ async function drawImage() {
 
 
     /*
-      First try images that Hestia has never shown
-      on this device.
+      Prefer images that have not appeared before.
     */
 
     let unseen =
@@ -561,8 +588,8 @@ async function drawImage() {
 
 
     /*
-      If everything has already been seen,
-      at least avoid showing the immediately previous image.
+      If all candidates have appeared before,
+      avoid the immediately previous image.
     */
 
     if (!unseen.length) {
