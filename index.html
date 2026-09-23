@@ -1,892 +1,129 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#24152f">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.json">
-<title>HESTIA IMAGE ORACLE</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Hestia Image Oracle</title>
 
 <style>
-:root{
-  --bg:#120d18;
-  --panel:#21152b;
-  --ink:#f5edf8;
-  --muted:#bca9c6;
-  --accent:#d8b4e5;
-  --line:#46344f
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #120d18;
+  color: #f5edf8;
+  font-family: Georgia, serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  background:radial-gradient(circle at 50% 0,#352040 0,#120d18 48%);
-  color:var(--ink);
-  font-family:Georgia,'Times New Roman',serif;
-  min-height:100vh
+.container {
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
 }
 
-main{
-  width:min(720px,100%);
-  margin:auto;
-  padding:28px 18px 42px;
-  text-align:center
+h1 {
+  font-size: 28px;
+  font-weight: normal;
+  margin-bottom: 25px;
 }
 
-.moon{font-size:28px;margin:6px 0 8px}
-
-.brand{
-  letter-spacing:.25em;
-  font-size:13px;
-  color:var(--muted)
+.image-box {
+  width: 100%;
+  min-height: 55vh;
+  background: #21152b;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-h1{
-  font-size:30px;
-  font-weight:400;
-  margin:8px 0 22px
+.image-box img {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
 }
 
-.card{
-  background:rgba(33,21,43,.82);
-  border:1px solid var(--line);
-  border-radius:22px;
-  padding:16px;
-  box-shadow:0 18px 50px rgba(0,0,0,.3)
+.placeholder {
+  color: #bca9c6;
+  font-size: 18px;
+  padding: 40px;
 }
 
-.image-wrap{
-  min-height:54vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#17101d;
-  border-radius:16px;
-  overflow:hidden
+button {
+  margin-top: 20px;
+  padding: 14px 28px;
+  border: 1px solid #80618c;
+  border-radius: 30px;
+  background: #382442;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
 }
 
-.image-wrap img{
-  display:block;
-  width:100%;
-  max-height:68vh;
-  object-fit:contain
-}
-
-.placeholder{
-  padding:55px 24px;
-  color:var(--muted);
-  font-size:18px;
-  line-height:1.7
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  margin:16px 0 8px;
-  flex-wrap:wrap
-}
-
-button{
-  border:1px solid #72577e;
-  background:#382442;
-  color:#fff;
-  padding:13px 20px;
-  border-radius:999px;
-  font:600 14px system-ui,sans-serif;
-  letter-spacing:.03em
-}
-
-button:active{transform:scale(.98)}
-
-button.secondary{
-  background:transparent;
-  color:var(--muted)
-}
-
-button:disabled{opacity:.55}
-
-.meta{
-  font:12px/1.6 system-ui,sans-serif;
-  color:var(--muted);
-  text-align:left;
-  padding:12px 5px 2px
-}
-
-.meta a{color:var(--accent)}
-
-.status{
-  min-height:22px;
-  color:var(--muted);
-  font:12px system-ui,sans-serif;
-  margin-top:7px
-}
-
-.credit{
-  margin-top:12px;
-  font:10px system-ui,sans-serif;
-  color:#7f6c88
+button:active {
+  transform: scale(.97);
 }
 </style>
 </head>
 
 <body>
 
-<main>
+<div class="container">
 
-<div class="moon">☾</div>
-<div class="brand">HESTIA</div>
-<h1>Image Oracle</h1>
+<h1>HESTIA · IMAGE ORACLE</h1>
 
-<section class="card">
-
-<div id="imageWrap" class="image-wrap">
-<div class="placeholder">
-Your image will appear here.<br>
-<span>Draw when you are ready.</span>
-</div>
+<div class="image-box" id="imageBox">
+  <div class="placeholder">
+    Your image will appear here.
+  </div>
 </div>
 
-<div class="actions">
-<button id="draw">DRAW AN IMAGE</button>
-<button id="again" class="secondary" disabled>DRAW AGAIN</button>
+<button onclick="drawImage()">
+  DRAW AN IMAGE
+</button>
+
 </div>
-
-<div id="status" class="status"></div>
-<div id="meta" class="meta"></div>
-
-</section>
-
-<div class="credit">
-Made with the Openverse API · Hestia Image Oracle
-</div>
-
-</main>
 
 <script>
 
-const API =
-  'https://api.openverse.org/v1/images/';
+const images = [
 
-const WORKER =
-  'https://super-bonus-a62e.parisashaddel333.workers.dev';
+"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Family_portrait.jpg/800px-Family_portrait.jpg",
 
+"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/People_talking.jpg/800px-People_talking.jpg",
 
-const queries = [
-  'people daily life',
-  'people conversation',
-  'people together',
-  'people meeting',
-  'people at home',
-  'family',
-  'family gathering',
-  'friends together',
-  'couple',
-  'woman portrait',
-  'man portrait',
-  'people portrait',
-  'children playing',
-  'people in street',
-  'people in market',
-  'people traveling',
-  'people waiting',
-  'people celebrating',
-  'people dancing',
-  'people reading',
-  'people writing',
-  'people sitting',
-  'people looking out window',
-  'solitary person',
-  'farewell people',
-  'reunion people',
-  'love couple',
-  'human relationship',
-  'human connection',
-  'people by the sea',
-  'people in nature',
-  'painting people',
-  'painting couple',
-  'painting family',
-  'painting portrait',
-  'painting daily life',
-  'artwork people',
-  'postcard people',
-  'historical people',
-  'historical scene',
-  'vintage people',
-  'vintage photograph people',
-  'old photograph people',
-  'daily life photograph',
-  'street life people',
-  'domestic scene people'
+"https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Children_playing.jpg/800px-Children_playing.jpg",
+
+"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Street_scene.jpg/800px-Street_scene.jpg",
+
+"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/People_in_a_market.jpg/800px-People_in_a_market.jpg"
+
 ];
 
+function drawImage() {
 
-const positive = [
-  'people','person','human','man','woman','child','children',
-  'family','couple','portrait','face','crowd','worker',
-  'mother','father','parent','lover','bride','groom','baby',
-  'elderly','friend','friends','conversation','meeting',
-  'daily life','street','home','relationship','painting',
-  'postcard','historical','vintage','photograph','artwork'
-];
+  const randomIndex =
+    Math.floor(Math.random() * images.length);
 
+  const image =
+    document.createElement("img");
 
-const negative = [
-  'insect','spider','butterfly','bee','wasp','fly',
-  'motorcycle','motorbike','car','truck','bus','train',
-  'airplane','aircraft','vehicle','automobile',
-  'diagram','graph','chart','formula','circuit',
-  'machine','engine','machinery','equipment',
-  'blueprint','scientific'
-];
+  image.src =
+    images[randomIndex];
 
+  image.alt =
+    "Random everyday life image";
 
-let seen = new Set(
-  JSON.parse(
-    localStorage.getItem('hestia_seen') || '[]'
-  )
-);
+  const box =
+    document.getElementById("imageBox");
 
+  box.innerHTML = "";
 
-function saveSeen(){
-
-  localStorage.setItem(
-    'hestia_seen',
-    JSON.stringify(
-      [...seen].slice(-3000)
-    )
-  );
-
-}
-
-
-function getId(item){
-
-  return item.id ||
-         item.identifier ||
-         null;
-
-}
-
-
-function score(item){
-
-  const tags =
-    Array.isArray(item.tags)
-      ? item.tags.map(tag =>
-          typeof tag === 'string'
-            ? tag
-            : (tag.name || '')
-        ).join(' ')
-      : '';
-
-  const text =
-    (
-      (item.title || '') +
-      ' ' +
-      (item.description || '') +
-      ' ' +
-      tags
-    ).toLowerCase();
-
-  let value = 0;
-
-  for(const word of positive){
-
-    if(text.includes(word)){
-      value += 2;
-    }
-
-  }
-
-  for(const word of negative){
-
-    if(text.includes(word)){
-      value -= 4;
-    }
-
-  }
-
-  if(item.width && item.height){
-
-    const ratio =
-      item.width / item.height;
-
-    if(
-      ratio > 0.4 &&
-      ratio < 2.8
-    ){
-      value += 1;
-    }
-
-  }
-
-  return value;
-
-}
-
-
-async function searchOpenverse(query,page){
-
-  const url =
-    new URL(API);
-
-  url.searchParams.set(
-    'q',
-    query
-  );
-
-  url.searchParams.set(
-    'page',
-    page
-  );
-
-  url.searchParams.set(
-    'page_size',
-    '30'
-  );
-
-
-  const response =
-    await fetch(
-      url.toString()
-    );
-
-
-  if(!response.ok){
-
-    throw new Error(
-      'Openverse API Error ' +
-      response.status
-    );
-
-  }
-
-
-  const data =
-    await response.json();
-
-
-  return (data.results || [])
-    .filter(item => {
-
-      if(!item){
-        return false;
-      }
-
-      const id =
-        getId(item);
-
-      if(!id){
-        return false;
-      }
-
-      if(
-        !item.url &&
-        !item.thumbnail
-      ){
-        return false;
-      }
-
-      if(seen.has(id)){
-        return false;
-      }
-
-      return true;
-
-    });
-
-}
-
-
-async function getCandidates(){
-
-  const shuffled =
-    [...queries].sort(
-      () => Math.random() - 0.5
-    );
-
-  let candidates = [];
-
-  let lastError = null;
-
-
-  for(
-    const query of shuffled.slice(0,10)
-  ){
-
-    const page =
-      1 +
-      Math.floor(
-        Math.random() * 5
-      );
-
-
-    try{
-
-      const results =
-        await searchOpenverse(
-          query,
-          page
-        );
-
-      candidates.push(
-        ...results
-      );
-
-
-      if(
-        candidates.length >= 30
-      ){
-        break;
-      }
-
-    }catch(error){
-
-      lastError = error;
-
-    }
-
-  }
-
-
-  if(
-    !candidates.length &&
-    lastError
-  ){
-
-    throw lastError;
-
-  }
-
-
-  const unique = [];
-
-  const ids = new Set();
-
-
-  for(
-    const item of candidates
-  ){
-
-    const id =
-      getId(item);
-
-    if(
-      !id ||
-      ids.has(id)
-    ){
-      continue;
-    }
-
-    ids.add(id);
-
-    unique.push(item);
-
-  }
-
-
-  return unique.sort(
-    (a,b) =>
-      score(b) - score(a)
-  );
-
-}
-
-
-function showMeta(item){
-
-  const meta =
-    document.getElementById(
-      'meta'
-    );
-
-  const license =
-    item.license ||
-    'License information not provided';
-
-  const creator =
-    item.creator ||
-    'Creator not listed';
-
-  const source =
-    item.source_name ||
-    item.provider ||
-    'Openverse source';
-
-  const sourceUrl =
-    item.foreign_landing_url ||
-    item.source ||
-    '';
-
-
-  meta.innerHTML =
-    '<strong>' +
-    escapeHtml(
-      item.title ||
-      'Untitled'
-    ) +
-    '</strong><br>' +
-
-    'Creator: ' +
-    escapeHtml(
-      creator
-    ) +
-    '<br>' +
-
-    'License: ' +
-    escapeHtml(
-      license
-    ) +
-
-    (
-      item.license_version
-        ? ' ' +
-          escapeHtml(
-            item.license_version
-          )
-        : ''
-    ) +
-
-    '<br>' +
-
-    'Source: ' +
-    escapeHtml(
-      source
-    ) +
-
-    (
-      sourceUrl
-        ? ' · <a target="_blank" rel="noopener" href="' +
-          escapeAttr(sourceUrl) +
-          '">open original</a>'
-        : ''
-    );
-
-}
-
-
-function loadImage(item){
-
-  return new Promise(
-    (resolve,reject) => {
-
-      const urls = [];
-
-
-      if(item.url){
-
-        urls.push(
-          WORKER +
-          '?url=' +
-          encodeURIComponent(
-            item.url
-          )
-        );
-
-      }
-
-
-      if(
-        item.thumbnail &&
-        item.thumbnail !== item.url
-      ){
-
-        urls.push(
-          WORKER +
-          '?url=' +
-          encodeURIComponent(
-            item.thumbnail
-          )
-        );
-
-      }
-
-
-      let index = 0;
-
-
-      function tryNext(){
-
-        if(
-          index >= urls.length
-        ){
-
-          reject(
-            new Error(
-              'IMAGE_LOAD_FAILED'
-            )
-          );
-
-          return;
-
-        }
-
-
-        const url =
-          urls[index++];
-
-
-        const image =
-          new Image();
-
-
-        image.alt =
-          item.title ||
-          'Random oracle image';
-
-
-        image.onload = () => {
-          resolve(image);
-        };
-
-
-        image.onerror = () => {
-          tryNext();
-        };
-
-
-        image.src = url;
-
-      }
-
-
-      tryNext();
-
-    }
-  );
-
-}
-
-
-async function draw(){
-
-  const drawButton =
-    document.getElementById(
-      'draw'
-    );
-
-  const againButton =
-    document.getElementById(
-      'again'
-    );
-
-  const status =
-    document.getElementById(
-      'status'
-    );
-
-  const wrap =
-    document.getElementById(
-      'imageWrap'
-    );
-
-  const meta =
-    document.getElementById(
-      'meta'
-    );
-
-
-  drawButton.disabled = true;
-  againButton.disabled = true;
-
-  status.textContent =
-    'Finding an image…';
-
-  meta.innerHTML = '';
-
-
-  try{
-
-    const candidates =
-      await getCandidates();
-
-
-    if(
-      !candidates.length
-    ){
-
-      throw new Error(
-        'No image found right now. Please draw again.'
-      );
-
-    }
-
-
-    const top =
-      candidates.slice(
-        0,
-        Math.min(
-          15,
-          candidates.length
-        )
-      );
-
-
-    let selected = null;
-    let image = null;
-
-
-    for(
-      const candidate of top
-    ){
-
-      try{
-
-        image =
-          await loadImage(
-            candidate
-          );
-
-        selected =
-          candidate;
-
-        break;
-
-      }catch(error){
-
-        const failedId =
-          getId(candidate);
-
-        if(failedId){
-          seen.add(failedId);
-        }
-
-      }
-
-    }
-
-
-    if(
-      !selected ||
-      !image
-    ){
-
-      throw new Error(
-        'IMAGE_LOAD_FAILED'
-      );
-
-    }
-
-
-    const selectedId =
-      getId(selected);
-
-
-    if(selectedId){
-
-      seen.add(selectedId);
-      saveSeen();
-
-    }
-
-
-    wrap.innerHTML = '';
-
-    wrap.appendChild(
-      image
-    );
-
-
-    status.textContent =
-      'Image drawn. Let the image speak.';
-
-
-    againButton.disabled =
-      false;
-
-
-    showMeta(
-      selected
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-
-    if(
-      error.message ===
-      'IMAGE_LOAD_FAILED'
-    ){
-
-      status.textContent =
-        'The images could not be loaded. Please draw again.';
-
-    }else{
-
-      status.textContent =
-        error.message ||
-        'Something went wrong. Please try again.';
-
-    }
-
-
-    againButton.disabled =
-      false;
-
-  }finally{
-
-    drawButton.disabled =
-      false;
-
-  }
-
-}
-
-
-function escapeHtml(value){
-
-  return String(value).replace(
-    /[&<>'"]/g,
-    character => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      "'":'&#39;',
-      '"':'&quot;'
-    }[character])
-  );
-
-}
-
-
-function escapeAttr(value){
-
-  return escapeHtml(value);
-
-}
-
-
-document.getElementById(
-  'draw'
-).onclick = draw;
-
-
-document.getElementById(
-  'again'
-).onclick = draw;
-
-
-if(
-  'serviceWorker' in navigator
-){
-
-  window.addEventListener(
-    'load',
-    () => {
-
-      navigator.serviceWorker
-        .register('sw.js')
-        .catch(() => {});
-
-    }
-  );
+  box.appendChild(image);
 
 }
 
