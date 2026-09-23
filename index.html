@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Hestia Image Oracle</title>
 
 <style>
@@ -14,8 +13,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #120d18;
-  color: #f5edf8;
+  background: #24131f;
+  color: #f1e8ed;
   font-family: Georgia, serif;
   display: flex;
   justify-content: center;
@@ -23,90 +22,102 @@ body {
 }
 
 .container {
-  width: 92%;
-  max-width: 720px;
+  width: min(92vw, 760px);
   text-align: center;
+  padding: 40px 20px;
 }
 
 .moon {
-  font-size: 28px;
+  font-size: 42px;
   margin-bottom: 8px;
 }
 
 .brand {
-  font-size: 13px;
-  letter-spacing: 0.25em;
-  color: #bca9c6;
+  letter-spacing: 6px;
+  font-size: 14px;
+  opacity: 0.75;
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: normal;
-  margin: 8px 0 24px;
+  margin: 12px 0 30px;
 }
 
 .image-box {
   width: 100%;
-  min-height: 55vh;
-  background: #21152b;
-  border: 1px solid #46344f;
-  border-radius: 20px;
+  min-height: 420px;
+  background: #160d13;
+  border: 1px solid #624552;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   overflow: hidden;
 }
 
 .image-box img {
-  display: block;
   width: 100%;
-  max-height: 70vh;
+  height: 520px;
   object-fit: contain;
+  display: block;
 }
 
 .placeholder {
-  color: #bca9c6;
-  font-size: 18px;
-  line-height: 1.7;
   padding: 40px;
+  line-height: 1.8;
+  color: #bdaab4;
 }
 
 button {
-  margin-top: 20px;
+  margin-top: 24px;
   padding: 14px 28px;
-  border: 1px solid #80618c;
-  border-radius: 30px;
-  background: #382442;
-  color: white;
-  font-size: 15px;
+  background: transparent;
+  color: #f1e8ed;
+  border: 1px solid #9b7182;
   cursor: pointer;
+  letter-spacing: 2px;
+  font-family: inherit;
+  transition: 0.2s;
 }
 
-button:active {
-  transform: scale(0.97);
+button:hover {
+  background: #3a202f;
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
+  cursor: wait;
 }
 
 .status {
-  margin-top: 12px;
-  min-height: 20px;
-  color: #bca9c6;
-  font-family: system-ui, sans-serif;
-  font-size: 12px;
+  min-height: 24px;
+  margin-top: 18px;
+  color: #cbb7c1;
+  font-size: 14px;
 }
 
 .source {
   margin-top: 8px;
-  font-family: system-ui, sans-serif;
-  font-size: 11px;
-  color: #8f7c98;
+  font-size: 12px;
+  color: #8f7b85;
 }
 
 .source a {
-  color: #cdb1d8;
+  color: #b99aaa;
+}
+
+@media (max-width: 600px) {
+  .image-box {
+    min-height: 320px;
+  }
+
+  .image-box img {
+    height: 400px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
 }
 </style>
 </head>
@@ -117,21 +128,15 @@ button:disabled {
 
   <div class="moon">☾</div>
 
-  <div class="brand">
-    HESTIA
-  </div>
+  <div class="brand">HESTIA</div>
 
-  <h1>
-    Image Oracle
-  </h1>
+  <h1>Image Oracle</h1>
 
   <div class="image-box" id="imageBox">
-
     <div class="placeholder">
       Your image will appear here.<br>
       Draw when you are ready.
     </div>
-
   </div>
 
   <button id="drawButton" onclick="drawImage()">
@@ -144,228 +149,358 @@ button:disabled {
 
 </div>
 
-
 <script>
 
-const API =
-  "https://commons.wikimedia.org/w/api.php";
+const API = "https://commons.wikimedia.org/w/api.php";
 
+/*
+  HESTIA IMAGE WORLDS
+
+  These are deliberately mixed:
+  - people alone
+  - two people
+  - groups
+  - family
+  - work
+  - everyday life
+  - waiting / meeting / leaving
+  - houses and rooms
+  - old photographs
+  - contemporary documentary scenes
+  - objects with human context
+  - paintings and historical scenes
+  - unusual but still meaningful situations
+*/
 
 const searches = [
 
-  "people daily life",
-  "people conversation",
-  "people together",
-  "family",
-  "family life",
-  "friends together",
-  "couple",
-  "people portrait",
-  "woman portrait",
-  "man portrait",
-  "people meeting",
-  "people walking",
-  "people sitting",
-  "people talking",
-  "people at home",
+  // PEOPLE ALONE
+  "person alone",
+  "woman alone",
+  "man alone",
+  "person sitting alone",
+  "person standing alone",
+  "person walking alone",
+  "person looking window",
+  "person looking away",
+  "person waiting",
+  "person sitting street",
+  "person sitting room",
+  "person walking street",
+
+  // TWO PEOPLE
+  "two people sitting",
+  "two people talking",
+  "two people walking",
+  "two people waiting",
+  "two people meeting",
+  "two people standing",
+  "two people looking",
+  "two people at home",
+  "couple sitting",
+  "couple walking",
+  "elderly couple",
+  "two strangers",
+
+  // GROUPS
+  "people gathering",
+  "people standing together",
+  "people sitting together",
+  "people waiting",
   "people in street",
-  "people in market",
-  "people celebrating",
-  "people reading",
-  "people working",
-  "children playing",
+  "people at table",
+  "people in house",
+  "people at work",
+  "people talking",
+  "crowd street",
+  "small group people",
+
+  // FAMILY
+  "family outside house",
+  "family at home",
+  "family sitting",
+  "family gathering",
+  "family photograph",
+  "family portrait",
   "mother child",
   "father child",
-  "old people",
-  "young people",
-  "people in nature",
-  "human relationship",
-  "human connection",
-  "everyday life photograph",
+  "siblings",
+  "parents children",
+
+  // WORK / EVERYDAY LIFE
+  "person working",
+  "woman working",
+  "man working",
+  "people at work",
+  "shopkeeper",
+  "worker street",
+  "person in office",
+  "person in kitchen",
+  "person reading",
+  "person writing",
+  "person cooking",
+  "people eating",
+
+  // MOVEMENT / TRANSITION
+  "people waiting station",
+  "person at train station",
+  "person leaving",
+  "person arriving",
+  "people meeting station",
+  "farewell people",
+  "people walking away",
+  "person with suitcase",
+  "traveler waiting",
+  "people traveling",
+
+  // HOMES / ROOMS / SPACES
+  "old house interior",
+  "house interior people",
+  "room with people",
+  "empty room house",
+  "living room people",
+  "kitchen people",
+  "person doorway",
+  "person near door",
+  "person window house",
+  "people in courtyard",
+  "house courtyard",
+
+  // OBJECTS WITH HUMAN CONTEXT
+  "old letter photograph",
+  "old family photograph",
+  "photograph on table",
+  "letters on table",
+  "suitcase room",
+  "shoes by door",
+  "empty chair room",
+  "table after meal",
+  "personal belongings room",
+  "old objects house",
+
+  // OLD / HISTORICAL
   "vintage people photograph",
-  "historical people"
+  "old people photograph",
+  "historic family photograph",
+  "historical people",
+  "old street photograph",
+  "old house people",
+  "old village people",
+  "vintage couple photograph",
+  "vintage everyday life",
+  "historical everyday life",
+
+  // CONTEMPORARY DOCUMENTARY
+  "color documentary people",
+  "candid people photograph",
+  "documentary everyday life",
+  "street documentary people",
+  "candid street photograph",
+  "people in public place",
+  "ordinary people photograph",
+  "everyday life photograph",
+  "human moment photograph",
+
+  // PLACES WITH A HUMAN STORY
+  "people train station",
+  "people bus stop",
+  "people cafe",
+  "people restaurant",
+  "people waiting room",
+  "people doorway",
+  "people street corner",
+  "person by sea",
+  "person in garden",
+  "person in countryside",
+
+  // ART / PAINTINGS
+  "painting people in room",
+  "painting family scene",
+  "painting people gathering",
+  "painting everyday life",
+  "historical painting people",
+  "genre painting people",
+  "painting two people",
+  "painting person alone",
+
+  // SLIGHTLY UNUSUAL BUT STILL HUMAN
+  "unusual people photograph",
+  "strange everyday photograph",
+  "unusual everyday scene",
+  "people unusual situation",
+  "ambiguous people photograph",
+  "unusual gathering people",
+  "candid unusual moment",
+  "mysterious everyday scene"
 
 ];
-
 
 let lastImage = "";
 
 
+/*
+  Keep a memory of previously seen images.
+
+  This is intentionally simple.
+  The browser remembers images already drawn on this device,
+  so Hestia is less likely to show the same image repeatedly.
+*/
+
+let seenImages = [];
+
+try {
+  seenImages = JSON.parse(
+    localStorage.getItem("hestiaSeenImages") || "[]"
+  );
+} catch (error) {
+  seenImages = [];
+}
+
+
 function randomItem(array) {
-
-  return array[
-    Math.floor(
-      Math.random() * array.length
-    )
-  ];
-
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 
 async function searchCommons(searchText) {
 
   const params = new URLSearchParams({
-
     action: "query",
-
     format: "json",
-
     origin: "*",
-
     generator: "search",
-
     gsrsearch: searchText,
-
     gsrnamespace: "6",
-
-    gsrlimit: "50",
-
+    gsrlimit: "30",
     prop: "imageinfo",
-
     iiprop: "url|mime",
-
     iiurlwidth: "1000"
-
   });
 
-
-  const response =
-    await fetch(
-      API + "?" + params.toString()
-    );
-
+  const response = await fetch(
+    API + "?" + params.toString()
+  );
 
   if (!response.ok) {
-
     throw new Error(
-      "Commons API error " +
-      response.status
+      "Commons API error " + response.status
     );
-
   }
 
+  const data = await response.json();
 
-  const data =
-    await response.json();
-
-
-  if (!data.query ||
-      !data.query.pages) {
-
+  if (!data.query || !data.query.pages) {
     return [];
-
   }
 
-
-  const pages =
-    Object.values(
-      data.query.pages
-    );
-
+  const pages = Object.values(data.query.pages);
 
   return pages.filter(page => {
 
-    if (!page.imageinfo ||
-        !page.imageinfo[0]) {
-
+    if (!page.imageinfo || !page.imageinfo[0]) {
       return false;
-
     }
 
-
-    const info =
-      page.imageinfo[0];
-
+    const info = page.imageinfo[0];
 
     if (!info.thumburl) {
-
       return false;
-
     }
 
-
-    if (!info.mime ||
-        !info.mime.startsWith("image/")) {
-
+    if (!info.mime || !info.mime.startsWith("image/")) {
       return false;
-
     }
 
-
-    if (
-      info.mime === "image/svg+xml"
-    ) {
-
+    if (info.mime === "image/svg+xml") {
       return false;
-
     }
-
 
     return true;
 
   });
+}
 
+
+function rememberImage(url) {
+
+  if (!url) return;
+
+  if (!seenImages.includes(url)) {
+    seenImages.push(url);
+  }
+
+  /*
+    Keep the memory manageable.
+    We remember the most recent 150 images.
+  */
+
+  if (seenImages.length > 150) {
+    seenImages = seenImages.slice(-150);
+  }
+
+  try {
+    localStorage.setItem(
+      "hestiaSeenImages",
+      JSON.stringify(seenImages)
+    );
+  } catch (error) {
+    console.log("Could not save image history.");
+  }
 }
 
 
 async function drawImage() {
 
   const button =
-    document.getElementById(
-      "drawButton"
-    );
+    document.getElementById("drawButton");
 
   const box =
-    document.getElementById(
-      "imageBox"
-    );
+    document.getElementById("imageBox");
 
   const status =
-    document.getElementById(
-      "status"
-    );
+    document.getElementById("status");
 
   const source =
-    document.getElementById(
-      "source"
-    );
-
+    document.getElementById("source");
 
   button.disabled = true;
 
-  status.textContent =
-    "Finding an image…";
+  status.textContent = "Finding an image…";
 
   source.innerHTML = "";
-
 
   try {
 
     let candidates = [];
 
+    /*
+      Pick several completely different search worlds
+      for each draw.
 
-    const shuffled =
+      This keeps the result varied without making the
+      system complicated.
+    */
+
+    const shuffledSearches =
       [...searches].sort(
         () => Math.random() - 0.5
       );
 
+    /*
+      Only use a small number of searches per draw.
+      This keeps the API request light and reduces errors.
+    */
 
     for (
-      const searchText
-      of shuffled.slice(0, 6)
+      const searchText of shuffledSearches.slice(0, 7)
     ) {
 
       try {
 
         const results =
-          await searchCommons(
-            searchText
-          );
+          await searchCommons(searchText);
 
-
-        candidates.push(
-          ...results
-        );
+        candidates.push(...results);
 
       } catch (error) {
 
@@ -376,9 +511,12 @@ async function drawImage() {
         );
 
       }
-
     }
 
+
+    /*
+      Remove duplicate image URLs.
+    */
 
     candidates =
       candidates.filter(
@@ -390,8 +528,7 @@ async function drawImage() {
           return (
             array.findIndex(
               other =>
-                other.imageinfo[0].thumburl
-                === url
+                other.imageinfo[0].thumburl === url
             ) === index
           );
 
@@ -400,26 +537,50 @@ async function drawImage() {
 
 
     if (!candidates.length) {
+      throw new Error("No images found");
+    }
 
-      throw new Error(
-        "No images found"
-      );
+
+    /*
+      First try images that Hestia has never shown
+      on this device.
+    */
+
+    let unseen =
+      candidates.filter(item => {
+
+        const url =
+          item.imageinfo[0].thumburl;
+
+        return (
+          !seenImages.includes(url) &&
+          url !== lastImage
+        );
+
+      });
+
+
+    /*
+      If everything has already been seen,
+      at least avoid showing the immediately previous image.
+    */
+
+    if (!unseen.length) {
+
+      unseen =
+        candidates.filter(item => {
+
+          return (
+            item.imageinfo[0].thumburl !== lastImage
+          );
+
+        });
 
     }
 
 
-    const available =
-      candidates.filter(
-        item =>
-          item.imageinfo[0].thumburl
-          !== lastImage
-      );
-
-
     const pool =
-      available.length
-        ? available
-        : candidates;
+      unseen.length ? unseen : candidates;
 
 
     const selected =
@@ -435,48 +596,46 @@ async function drawImage() {
 
 
     image.alt =
-      selected.title
-      || "Random human life image";
+      selected.title ||
+      "Random Hestia image";
 
 
-    image.onload =
-      function() {
+    image.onload = function() {
 
-        box.innerHTML = "";
+      box.innerHTML = "";
 
-        box.appendChild(
-          image
-        );
+      box.appendChild(image);
 
-        status.textContent =
-          "Image drawn.";
+      status.textContent =
+        "Image drawn.";
 
-        source.innerHTML =
-          'Source: <a href="' +
-          info.descriptionurl +
-          '" target="_blank" rel="noopener">' +
-          'Wikimedia Commons' +
-          '</a>';
+      source.innerHTML =
+        'Source: <a href="' +
+        info.descriptionurl +
+        '" target="_blank" rel="noopener">' +
+        "Wikimedia Commons" +
+        "</a>";
 
-        lastImage =
-          info.thumburl;
+      lastImage =
+        info.thumburl;
 
-        button.disabled =
-          false;
+      rememberImage(
+        info.thumburl
+      );
 
-      };
+      button.disabled = false;
+
+    };
 
 
-    image.onerror =
-      function() {
+    image.onerror = function() {
 
-        status.textContent =
-          "This image could not be loaded. Drawing another…";
+      status.textContent =
+        "This image could not be loaded. Drawing another…";
 
-        button.disabled =
-          false;
+      button.disabled = false;
 
-      };
+    };
 
 
     image.src =
@@ -490,8 +649,7 @@ async function drawImage() {
     status.textContent =
       "Could not find an image. Please try again.";
 
-    button.disabled =
-      false;
+    button.disabled = false;
 
   }
 
