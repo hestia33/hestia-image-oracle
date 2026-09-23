@@ -1,688 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hestia Image Oracle</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <title>Hestia Image Oracle</title>
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #24131f;
-  color: #f1e8ed;
-  font-family: Georgia, serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-.container {
-  width: min(92vw, 760px);
-  text-align: center;
-  padding: 40px 20px;
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f5efe7;
+      color: #3d3028;
+      font-family: Georgia, "Times New Roman", serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
 
-.moon {
-  font-size: 42px;
-  margin-bottom: 8px;
-}
+    .container {
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+    }
 
-.brand {
-  letter-spacing: 6px;
-  font-size: 14px;
-  opacity: 0.75;
-}
+    h1 {
+      font-size: 34px;
+      font-weight: normal;
+      margin-bottom: 8px;
+    }
 
-h1 {
-  font-size: 32px;
-  font-weight: normal;
-  margin: 12px 0 30px;
-}
+    .subtitle {
+      font-size: 16px;
+      color: #806e61;
+      margin-bottom: 30px;
+    }
 
-.image-box {
-  width: 100%;
-  min-height: 420px;
-  background: #160d13;
-  border: 1px solid #624552;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
+    .image-box {
+      width: 100%;
+      min-height: 400px;
+      background: #e9dfd4;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 25px;
+    }
 
-.image-box img {
-  width: 100%;
-  height: 520px;
-  object-fit: contain;
-  display: block;
-}
+    .image-box img {
+      display: block;
+      width: 100%;
+      max-height: 650px;
+      object-fit: contain;
+    }
 
-.placeholder {
-  padding: 40px;
-  line-height: 1.8;
-  color: #bdaab4;
-}
+    .placeholder {
+      color: #8b796b;
+      padding: 30px;
+      line-height: 1.8;
+    }
 
-button {
-  margin-top: 24px;
-  padding: 14px 28px;
-  background: transparent;
-  color: #f1e8ed;
-  border: 1px solid #9b7182;
-  cursor: pointer;
-  letter-spacing: 2px;
-  font-family: inherit;
-  transition: 0.2s;
-}
+    button {
+      border: none;
+      background: #6f5748;
+      color: white;
+      padding: 14px 30px;
+      border-radius: 30px;
+      font-size: 17px;
+      cursor: pointer;
+      font-family: inherit;
+    }
 
-button:hover {
-  background: #3a202f;
-}
+    button:hover {
+      opacity: 0.9;
+    }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
 
-.status {
-  min-height: 24px;
-  margin-top: 18px;
-  color: #cbb7c1;
-  font-size: 14px;
-}
+    .counter {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #98877b;
+    }
 
-.source {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #8f7b85;
-}
-
-.source a {
-  color: #b99aaa;
-}
-
-@media (max-width: 600px) {
-  .image-box {
-    min-height: 320px;
-  }
-
-  .image-box img {
-    height: 400px;
-  }
-
-  h1 {
-    font-size: 28px;
-  }
-}
-</style>
+    .loading {
+      color: #806e61;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <div class="moon">☾</div>
+    <h1>Hestia</h1>
 
-  <div class="brand">HESTIA</div>
-
-  <h1>Image Oracle</h1>
-
-  <div class="image-box" id="imageBox">
-    <div class="placeholder">
-      Your image will appear here.<br>
-      Draw when you are ready.
+    <div class="subtitle">
+      Image Oracle
     </div>
+
+    <div class="image-box" id="imageBox">
+      <div class="placeholder loading">
+        در حال آماده‌سازی تصاویر...
+      </div>
+    </div>
+
+    <button id="drawButton" disabled>
+      دریافت تصویر
+    </button>
+
+    <div class="counter" id="counter"></div>
+
   </div>
 
-  <button id="drawButton" onclick="drawImage()">
-    DRAW AN IMAGE
-  </button>
 
-  <div class="status" id="status"></div>
+  <script>
 
-  <div class="source" id="source"></div>
+    const owner = "hestia33";
+    const repository = "hestia-image-oracle";
+    const folder = "images";
 
-</div>
+    let images = [];
+    let recentImages = [];
 
-<script>
-
-const API = "https://commons.wikimedia.org/w/api.php";
-
-/*
-  HESTIA IMAGE WORLDS
-
-  The searches below focus on scenes with a
-  narrative hook: something appears to be happening,
-  but the complete story is unknown.
-
-  The collection deliberately mixes:
-  - solitude
-  - two people
-  - groups
-  - family
-  - work
-  - waiting
-  - meetings
-  - departures
-  - public places
-  - homes
-  - old photographs
-  - contemporary documentary scenes
-  - paintings
-*/
-
-const searches = [
-
-  // SOLITUDE / ONE PERSON
-
-  "person waiting at station",
-  "person waiting street",
-  "person sitting alone public place",
-  "person looking through window",
-  "person standing doorway",
-  "person looking away",
-  "person walking away",
-  "person with suitcase",
-  "person sitting train station",
-  "person standing in crowd",
-  "one person separated from group",
-  "person waiting room",
-  "person sitting cafe",
-  "person reading alone",
-  "person looking outside window",
-
-
-  // TWO PEOPLE / RELATIONSHIPS
-
-  "two people talking street",
-  "two people talking indoors",
-  "two people meeting",
-  "two people waiting together",
-  "two people standing apart",
-  "two people walking together",
-  "two people looking at each other",
-  "two people sitting together",
-  "two people at table",
-  "two people saying goodbye",
-  "two people greeting",
-  "two people at train station",
-  "two strangers talking",
-  "couple sitting together",
-  "couple walking street",
-  "elderly couple photograph",
-
-
-  // GROUPS / SOCIAL SCENES
-
-  "people meeting street",
-  "people waiting station",
-  "people gathering outside",
-  "people standing together",
-  "small group people talking",
-  "people sitting around table",
-  "people at cafe",
-  "people in public place",
-  "people watching something",
-  "people looking at camera",
-  "one person in crowd",
-  "person separated from group",
-  "people meeting doorway",
-  "people talking outside house",
-  "people gathered around person",
-
-
-  // FAMILY / HOME
-
-  "family outside house",
-  "family in courtyard",
-  "family sitting at table",
-  "family at home",
-  "family gathering",
-  "family portrait old house",
-  "family photograph outside house",
-  "parents children at home",
-  "siblings together photograph",
-  "mother child at home",
-  "father child at home",
-  "family looking at camera",
-  "family standing outside",
-  "family sitting outside house",
-
-
-  // WORK / EVERYDAY HUMAN LIFE
-
-  "people at work candid",
-  "worker talking to customer",
-  "shopkeeper customer",
-  "person working in shop",
-  "people working together",
-  "worker with another person",
-  "person working at table",
-  "people at workplace",
-  "person cooking with people",
-  "people eating together",
-  "person writing at desk",
-  "person reading at work",
-  "people talking at work",
-  "street vendor customer",
-  "worker standing with people",
-
-
-  // WAITING / ARRIVING / LEAVING / TRAVEL
-
-  "person waiting at train station",
-  "people waiting at train station",
-  "people waiting bus stop",
-  "person with suitcase station",
-  "traveler waiting station",
-  "people arriving station",
-  "people leaving station",
-  "people meeting at station",
-  "people saying goodbye station",
-  "person walking with suitcase",
-  "person leaving house",
-  "person arriving home",
-  "people meeting at doorway",
-  "person waiting airport",
-  "traveler sitting waiting",
-
-
-  // HOMES WITH HUMAN CONTEXT
-
-  "person standing in old house",
-  "person in doorway old house",
-  "people in old house",
-  "people in courtyard old house",
-  "family outside old house",
-  "person looking from window",
-  "people sitting in old room",
-  "people around table old house",
-  "family room photograph",
-  "people inside house photograph",
-
-
-  // OLD PHOTOGRAPHS / HISTORICAL HUMAN MOMENTS
-
-  "old family photograph",
-  "old family portrait",
-  "vintage family photograph",
-  "historic family photograph",
-  "old photograph people outside house",
-  "vintage people outside house",
-  "old photograph people at home",
-  "vintage couple photograph",
-  "old photograph two people",
-  "old photograph people gathering",
-  "historical people photograph",
-  "historic street photograph people",
-  "vintage people waiting",
-  "old photograph people working",
-  "vintage everyday life people",
-  "historical everyday life people",
-
-
-  // CONTEMPORARY DOCUMENTARY
-
-  "candid color documentary person",
-  "candid color documentary two people",
-  "color documentary people meeting",
-  "color documentary people waiting",
-  "color documentary family",
-  "contemporary documentary person alone",
-  "contemporary documentary two people",
-  "contemporary documentary group people",
-  "street documentary person",
-  "street documentary two people",
-  "documentary photograph people waiting",
-  "documentary photograph people meeting",
-  "documentary photograph people working",
-  "documentary photograph family",
-  "candid everyday life people",
-
-
-  // PUBLIC / EVERYDAY PLACES
-
-  "people at bus stop",
-  "people at train station",
-  "people in waiting room",
-  "people at cafe",
-  "people at restaurant",
-  "people outside shop",
-  "people on street corner",
-  "people entering building",
-  "people leaving building",
-  "person near doorway public place",
-  "person sitting public place",
-  "people sitting public place",
-
-
-  // ART / PAINTINGS WITH HUMAN STORIES
-
-  "painting two people in room",
-  "painting people in room",
-  "painting family scene",
-  "painting family at table",
-  "painting people gathering",
-  "painting person looking",
-  "painting person waiting",
-  "painting people meeting",
-  "painting people outside house",
-  "historical painting people",
-  "genre painting people",
-  "painting everyday life"
-
-
-];
-
-let lastImage = "";
-
-let seenImages = [];
-
-try {
-  seenImages = JSON.parse(
-    localStorage.getItem("hestiaSeenImages") || "[]"
-  );
-} catch (error) {
-  seenImages = [];
-}
-
-
-function randomItem(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-
-async function searchCommons(searchText) {
-
-  const params = new URLSearchParams({
-    action: "query",
-    format: "json",
-    origin: "*",
-    generator: "search",
-    gsrsearch: searchText,
-    gsrnamespace: "6",
-    gsrlimit: "30",
-    prop: "imageinfo",
-    iiprop: "url|mime",
-    iiurlwidth: "1000"
-  });
-
-  const response = await fetch(
-    API + "?" + params.toString()
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      "Commons API error " + response.status
-    );
-  }
-
-  const data = await response.json();
-
-  if (!data.query || !data.query.pages) {
-    return [];
-  }
-
-  const pages = Object.values(data.query.pages);
-
-  return pages.filter(page => {
-
-    if (!page.imageinfo || !page.imageinfo[0]) {
-      return false;
-    }
-
-    const info = page.imageinfo[0];
-
-    if (!info.thumburl) {
-      return false;
-    }
-
-    if (!info.mime || !info.mime.startsWith("image/")) {
-      return false;
-    }
-
-    if (info.mime === "image/svg+xml") {
-      return false;
-    }
-
-    return true;
-
-  });
-}
-
-
-function rememberImage(url) {
-
-  if (!url) return;
-
-  if (!seenImages.includes(url)) {
-    seenImages.push(url);
-  }
-
-  if (seenImages.length > 150) {
-    seenImages = seenImages.slice(-150);
-  }
-
-  try {
-    localStorage.setItem(
-      "hestiaSeenImages",
-      JSON.stringify(seenImages)
-    );
-  } catch (error) {
-    console.log("Could not save image history.");
-  }
-}
-
-
-async function drawImage() {
-
-  const button =
-    document.getElementById("drawButton");
-
-  const box =
-    document.getElementById("imageBox");
-
-  const status =
-    document.getElementById("status");
-
-  const source =
-    document.getElementById("source");
-
-  button.disabled = true;
-
-  status.textContent = "Finding an image…";
-
-  source.innerHTML = "";
-
-  try {
-
-    let candidates = [];
-
-    /*
-      Randomly mix different narrative worlds
-      for every draw.
-    */
-
-    const shuffledSearches =
-      [...searches].sort(
-        () => Math.random() - 0.5
-      );
+    const imageBox = document.getElementById("imageBox");
+    const drawButton = document.getElementById("drawButton");
+    const counter = document.getElementById("counter");
 
 
     /*
-      Seven searches per draw keep the API light
-      while preserving variety.
+      پیدا کردن خودکار تمام تصاویر داخل پوشه images
     */
 
-    for (
-      const searchText of shuffledSearches.slice(0, 7)
-    ) {
+    async function loadImages() {
 
       try {
 
-        const results =
-          await searchCommons(searchText);
+        const apiUrl =
+          `https://api.github.com/repos/${owner}/${repository}/contents/${folder}`;
 
-        candidates.push(...results);
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error("Could not load image folder");
+        }
+
+        const files = await response.json();
+
+        images = files
+          .filter(file => {
+            return file.type === "file" &&
+              /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
+          })
+          .map(file => file.download_url);
+
+        if (images.length === 0) {
+
+          imageBox.innerHTML = `
+            <div class="placeholder">
+              هنوز تصویری در بانک تصاویر پیدا نشد.
+            </div>
+          `;
+
+          counter.textContent = "";
+
+          return;
+        }
+
+        counter.textContent =
+          `${images.length} تصویر در بانک تصاویر`;
+
+        drawButton.disabled = false;
+
+        drawImage();
 
       } catch (error) {
 
-        console.log(
-          "Search failed:",
-          searchText,
-          error
-        );
+        console.error(error);
+
+        imageBox.innerHTML = `
+          <div class="placeholder">
+            در بارگذاری تصاویر مشکلی پیش آمد.
+            <br>
+            لطفاً چند لحظه بعد دوباره امتحان کن.
+          </div>
+        `;
+
+        counter.textContent = "";
 
       }
+
     }
 
 
     /*
-      Remove duplicate image URLs.
+      انتخاب تصادفی تصویر
     */
 
-    candidates =
-      candidates.filter(
-        (item, index, array) => {
+    function drawImage() {
 
-          const url =
-            item.imageinfo[0].thumburl;
+      if (images.length === 0) return;
 
-          return (
-            array.findIndex(
-              other =>
-                other.imageinfo[0].thumburl === url
-            ) === index
-          );
-
-        }
+      let availableImages = images.filter(
+        image => !recentImages.includes(image)
       );
 
+      /*
+        اگر همه تصاویر اخیراً دیده شده باشند،
+        دوباره از کل بانک استفاده می‌کنیم.
+      */
 
-    if (!candidates.length) {
-      throw new Error("No images found");
+      if (availableImages.length === 0) {
+
+        recentImages = [];
+
+        availableImages = [...images];
+
+      }
+
+
+      const randomIndex =
+        Math.floor(Math.random() * availableImages.length);
+
+      const selectedImage =
+        availableImages[randomIndex];
+
+
+      /*
+        ذخیره تصویر در لیست تصاویر اخیر
+      */
+
+      recentImages.push(selectedImage);
+
+
+      /*
+        فقط 10 تصویر اخیر را به خاطر می‌سپاریم
+      */
+
+      if (recentImages.length > 10) {
+        recentImages.shift();
+      }
+
+
+      /*
+        نمایش تصویر
+      */
+
+      imageBox.innerHTML = "";
+
+      const img = document.createElement("img");
+
+      img.src = selectedImage;
+
+      img.alt = "Hestia Image Oracle";
+
+      imageBox.appendChild(img);
+
     }
 
 
-    /*
-      Prefer images that have not appeared before.
-    */
-
-    let unseen =
-      candidates.filter(item => {
-
-        const url =
-          item.imageinfo[0].thumburl;
-
-        return (
-          !seenImages.includes(url) &&
-          url !== lastImage
-        );
-
-      });
+    drawButton.addEventListener("click", drawImage);
 
 
     /*
-      If all candidates have appeared before,
-      avoid the immediately previous image.
+      شروع برنامه
     */
 
-    if (!unseen.length) {
+    loadImages();
 
-      unseen =
-        candidates.filter(item => {
-
-          return (
-            item.imageinfo[0].thumburl !== lastImage
-          );
-
-        });
-
-    }
-
-
-    const pool =
-      unseen.length ? unseen : candidates;
-
-
-    const selected =
-      randomItem(pool);
-
-
-    const info =
-      selected.imageinfo[0];
-
-
-    const image =
-      new Image();
-
-
-    image.alt =
-      selected.title ||
-      "Random Hestia image";
-
-
-    image.onload = function() {
-
-      box.innerHTML = "";
-
-      box.appendChild(image);
-
-      status.textContent =
-        "Image drawn.";
-
-      source.innerHTML =
-        'Source: <a href="' +
-        info.descriptionurl +
-        '" target="_blank" rel="noopener">' +
-        "Wikimedia Commons" +
-        "</a>";
-
-      lastImage =
-        info.thumburl;
-
-      rememberImage(
-        info.thumburl
-      );
-
-      button.disabled = false;
-
-    };
-
-
-    image.onerror = function() {
-
-      status.textContent =
-        "This image could not be loaded. Drawing another…";
-
-      button.disabled = false;
-
-    };
-
-
-    image.src =
-      info.thumburl;
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    status.textContent =
-      "Could not find an image. Please try again.";
-
-    button.disabled = false;
-
-  }
-
-}
-
-</script>
+  </script>
 
 </body>
 </html>
