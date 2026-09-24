@@ -41,6 +41,11 @@
       margin-bottom: 30px;
     }
 
+    .card-name {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
     .image-box {
       width: 100%;
       min-height: 400px;
@@ -98,6 +103,10 @@
       Image Oracle
     </div>
 
+    <div class="card-name">
+      The Hermit
+    </div>
+
     <div class="image-box" id="imageBox">
     </div>
 
@@ -109,12 +118,12 @@
 
   </div>
 
-
   <script>
 
     const owner = "hestia33";
     const repository = "hestia-image-oracle";
-    const folder = "images";
+
+    const folder = "images/major-arcana/the-hermit";
 
     let images = [];
     let recentImages = [];
@@ -149,7 +158,8 @@
 
         if (images.length === 0) {
 
-          counter.textContent = "No images in the image bank yet.";
+          counter.textContent =
+            "No images in the image bank yet.";
 
           return;
         }
@@ -194,6 +204,7 @@
       const randomIndex =
         Math.floor(Math.random() * availableImages.length);
 
+
       const selectedImage =
         availableImages[randomIndex];
 
@@ -212,7 +223,7 @@
 
       img.src = selectedImage;
 
-      img.alt = "Hestia Image Oracle";
+      img.alt = "The Hermit";
 
       imageBox.appendChild(img);
 
