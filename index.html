@@ -41,9 +41,17 @@
       margin-bottom: 30px;
     }
 
-    .card-name {
-      font-size: 22px;
-      margin-bottom: 20px;
+    select {
+      width: 100%;
+      max-width: 360px;
+      padding: 13px 18px;
+      margin-bottom: 14px;
+      border: 1px solid #d5c8bb;
+      border-radius: 12px;
+      background: #fffaf5;
+      color: #3d3028;
+      font-size: 16px;
+      font-family: inherit;
     }
 
     .image-box {
@@ -55,7 +63,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 25px;
+      margin: 15px 0 25px;
     }
 
     .image-box img {
@@ -103,9 +111,18 @@
       Image Oracle
     </div>
 
-    <div class="card-name">
-      The Hermit
-    </div>
+    <select id="categorySelect">
+      <option value="">Choose a category</option>
+      <option value="major-arcana">Major Arcana</option>
+      <option value="wands">Wands</option>
+      <option value="cups">Cups</option>
+      <option value="swords">Swords</option>
+      <option value="pentacles">Pentacles</option>
+    </select>
+
+    <select id="cardSelect" disabled>
+      <option value="">Choose a card</option>
+    </select>
 
     <div class="image-box" id="imageBox">
     </div>
@@ -118,19 +135,206 @@
 
   </div>
 
+
   <script>
 
     const owner = "hestia33";
     const repository = "hestia-image-oracle";
 
-    const folder = "images/major-arcana/the-hermit";
+    const cards = {
+
+      "major-arcana": [
+        ["The Fool", "the-fool"],
+        ["The Magician", "the-magician"],
+        ["The High Priestess", "the-high-priestess"],
+        ["The Empress", "the-empress"],
+        ["The Emperor", "the-emperor"],
+        ["The Hierophant", "the-hierophant"],
+        ["The Lovers", "the-lovers"],
+        ["The Chariot", "the-chariot"],
+        ["Strength", "strength"],
+        ["The Hermit", "the-hermit"],
+        ["Wheel of Fortune", "wheel-of-fortune"],
+        ["Justice", "justice"],
+        ["The Hanged Man", "the-hanged-man"],
+        ["Death", "death"],
+        ["Temperance", "temperance"],
+        ["The Devil", "the-devil"],
+        ["The Tower", "the-tower"],
+        ["The Star", "the-star"],
+        ["The Moon", "the-moon"],
+        ["The Sun", "the-sun"],
+        ["Judgement", "judgement"],
+        ["The World", "the-world"]
+      ],
+
+      "wands": [
+        ["Ace of Wands", "ace-of-wands"],
+        ["Two of Wands", "two-of-wands"],
+        ["Three of Wands", "three-of-wands"],
+        ["Four of Wands", "four-of-wands"],
+        ["Five of Wands", "five-of-wands"],
+        ["Six of Wands", "six-of-wands"],
+        ["Seven of Wands", "seven-of-wands"],
+        ["Eight of Wands", "eight-of-wands"],
+        ["Nine of Wands", "nine-of-wands"],
+        ["Ten of Wands", "ten-of-wands"],
+        ["Page of Wands", "page-of-wands"],
+        ["Knight of Wands", "knight-of-wands"],
+        ["Queen of Wands", "queen-of-wands"],
+        ["King of Wands", "king-of-wands"]
+      ],
+
+      "cups": [
+        ["Ace of Cups", "ace-of-cups"],
+        ["Two of Cups", "two-of-cups"],
+        ["Three of Cups", "three-of-cups"],
+        ["Four of Cups", "four-of-cups"],
+        ["Five of Cups", "five-of-cups"],
+        ["Six of Cups", "six-of-cups"],
+        ["Seven of Cups", "seven-of-cups"],
+        ["Eight of Cups", "eight-of-cups"],
+        ["Nine of Cups", "nine-of-cups"],
+        ["Ten of Cups", "ten-of-cups"],
+        ["Page of Cups", "page-of-cups"],
+        ["Knight of Cups", "knight-of-cups"],
+        ["Queen of Cups", "queen-of-cups"],
+        ["King of Cups", "king-of-cups"]
+      ],
+
+      "swords": [
+        ["Ace of Swords", "ace-of-swords"],
+        ["Two of Swords", "two-of-swords"],
+        ["Three of Swords", "three-of-swords"],
+        ["Four of Swords", "four-of-swords"],
+        ["Five of Swords", "five-of-swords"],
+        ["Six of Swords", "six-of-swords"],
+        ["Seven of Swords", "seven-of-swords"],
+        ["Eight of Swords", "eight-of-swords"],
+        ["Nine of Swords", "nine-of-swords"],
+        ["Ten of Swords", "ten-of-swords"],
+        ["Page of Swords", "page-of-swords"],
+        ["Knight of Swords", "knight-of-swords"],
+        ["Queen of Swords", "queen-of-swords"],
+        ["King of Swords", "king-of-swords"]
+      ],
+
+      "pentacles": [
+        ["Ace of Pentacles", "ace-of-pentacles"],
+        ["Two of Pentacles", "two-of-pentacles"],
+        ["Three of Pentacles", "three-of-pentacles"],
+        ["Four of Pentacles", "four-of-pentacles"],
+        ["Five of Pentacles", "five-of-pentacles"],
+        ["Six of Pentacles", "six-of-pentacles"],
+        ["Seven of Pentacles", "seven-of-pentacles"],
+        ["Eight of Pentacles", "eight-of-pentacles"],
+        ["Nine of Pentacles", "nine-of-pentacles"],
+        ["Ten of Pentacles", "ten-of-pentacles"],
+        ["Page of Pentacles", "page-of-pentacles"],
+        ["Knight of Pentacles", "knight-of-pentacles"],
+        ["Queen of Pentacles", "queen-of-pentacles"],
+        ["King of Pentacles", "king-of-pentacles"]
+      ]
+
+    };
+
+
+    const categorySelect =
+      document.getElementById("categorySelect");
+
+    const cardSelect =
+      document.getElementById("cardSelect");
+
+    const imageBox =
+      document.getElementById("imageBox");
+
+    const drawButton =
+      document.getElementById("drawButton");
+
+    const counter =
+      document.getElementById("counter");
+
 
     let images = [];
     let recentImages = [];
+    let currentFolder = "";
 
-    const imageBox = document.getElementById("imageBox");
-    const drawButton = document.getElementById("drawButton");
-    const counter = document.getElementById("counter");
+
+    categorySelect.addEventListener("change", function() {
+
+      const category = categorySelect.value;
+
+      cardSelect.innerHTML =
+        '<option value="">Choose a card</option>';
+
+      imageBox.innerHTML = "";
+
+      counter.textContent = "";
+
+      drawButton.disabled = true;
+
+      images = [];
+      recentImages = [];
+      currentFolder = "";
+
+
+      if (!category) {
+
+        cardSelect.disabled = true;
+        return;
+
+      }
+
+
+      cards[category].forEach(function(card) {
+
+        const option =
+          document.createElement("option");
+
+        option.value = card[1];
+        option.textContent = card[0];
+
+        cardSelect.appendChild(option);
+
+      });
+
+
+      cardSelect.disabled = false;
+
+    });
+
+
+    cardSelect.addEventListener("change", function() {
+
+      const category =
+        categorySelect.value;
+
+      const cardFolder =
+        cardSelect.value;
+
+
+      imageBox.innerHTML = "";
+
+      counter.textContent = "";
+
+      drawButton.disabled = true;
+
+      images = [];
+      recentImages = [];
+
+
+      if (!category || !cardFolder) {
+        return;
+      }
+
+
+      currentFolder =
+        `images/${category}/${cardFolder}`;
+
+
+      loadImages();
+
+    });
 
 
     async function loadImages() {
@@ -138,22 +342,35 @@
       try {
 
         const apiUrl =
-          `https://api.github.com/repos/${owner}/${repository}/contents/${folder}`;
+          `https://api.github.com/repos/${owner}/${repository}/contents/${currentFolder}`;
 
-        const response = await fetch(apiUrl);
+
+        const response =
+          await fetch(apiUrl);
+
 
         if (!response.ok) {
           throw new Error("Could not load image folder");
         }
 
-        const files = await response.json();
 
-        images = files
-          .filter(file => {
-            return file.type === "file" &&
-              /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
-          })
-          .map(file => file.download_url);
+        const files =
+          await response.json();
+
+
+        images =
+          files
+            .filter(function(file) {
+
+              return file.type === "file" &&
+                /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
+
+            })
+            .map(function(file) {
+
+              return file.download_url;
+
+            });
 
 
         if (images.length === 0) {
@@ -162,13 +379,16 @@
             "No images in the image bank yet.";
 
           return;
+
         }
 
 
         counter.textContent =
           `${images.length} images in the image bank`;
 
+
         drawButton.disabled = false;
+
 
       } catch (error) {
 
@@ -184,12 +404,17 @@
 
     function drawImage() {
 
-      if (images.length === 0) return;
+      if (images.length === 0) {
+        return;
+      }
 
 
-      let availableImages = images.filter(
-        image => !recentImages.includes(image)
-      );
+      let availableImages =
+        images.filter(function(image) {
+
+          return !recentImages.includes(image);
+
+        });
 
 
       if (availableImages.length === 0) {
@@ -202,7 +427,9 @@
 
 
       const randomIndex =
-        Math.floor(Math.random() * availableImages.length);
+        Math.floor(
+          Math.random() * availableImages.length
+        );
 
 
       const selectedImage =
@@ -219,21 +446,29 @@
 
       imageBox.innerHTML = "";
 
-      const img = document.createElement("img");
+
+      const img =
+        document.createElement("img");
+
 
       img.src = selectedImage;
 
-      img.alt = "The Hermit";
+
+      img.alt =
+        cardSelect.options[
+          cardSelect.selectedIndex
+        ].textContent;
+
 
       imageBox.appendChild(img);
 
     }
 
 
-    drawButton.addEventListener("click", drawImage);
-
-
-    loadImages();
+    drawButton.addEventListener(
+      "click",
+      drawImage
+    );
 
   </script>
 
