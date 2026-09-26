@@ -328,13 +328,60 @@
       }
 
 
-      currentFolder =
-        `images/${category}/${cardFolder}`;
-
-
-      loadImages();
+      findActualFolder(category, cardFolder);
 
     });
+
+
+    async function findActualFolder(category, cardFolder) {
+
+      try {
+
+        const categoryUrl =
+          `https://api.github.com/repos/${owner}/${repository}/contents/images/${category}`;
+
+        const response =
+          await fetch(categoryUrl);
+
+        if (!response.ok) {
+          throw new Error("Could not load category folder");
+        }
+
+        const folders =
+          await response.json();
+
+
+        const matchingFolder =
+          folders.find(function(item) {
+
+            return item.type === "dir" &&
+              item.name.trim() === cardFolder.trim();
+
+          });
+
+
+        if (!matchingFolder) {
+
+          throw new Error("Card folder not found");
+
+        }
+
+
+        currentFolder =
+          matchingFolder.path;
+
+        loadImages();
+
+      } catch (error) {
+
+        console.error(error);
+
+        counter.textContent =
+          "Unable to load the image bank.";
+
+      }
+
+    }
 
 
     async function loadImages() {
