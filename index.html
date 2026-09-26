@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Hestia Image Oracle</title>
-
   <style>
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -22,25 +19,21 @@
       align-items: center;
       padding: 24px;
     }
-
     .container {
       width: 100%;
       max-width: 700px;
       text-align: center;
     }
-
     h1 {
       font-size: 34px;
       font-weight: normal;
       margin-bottom: 8px;
     }
-
     .subtitle {
       font-size: 16px;
       color: #806e61;
       margin-bottom: 30px;
     }
-
     select {
       width: 100%;
       max-width: 360px;
@@ -53,7 +46,6 @@
       font-size: 16px;
       font-family: inherit;
     }
-
     .image-box {
       width: 100%;
       min-height: 400px;
@@ -65,14 +57,12 @@
       align-items: center;
       margin: 15px 0 25px;
     }
-
     .image-box img {
       display: block;
       width: 100%;
       max-height: 650px;
       object-fit: contain;
     }
-
     button {
       border: none;
       background: #6f5748;
@@ -83,16 +73,13 @@
       cursor: pointer;
       font-family: inherit;
     }
-
     button:hover {
       opacity: 0.9;
     }
-
     button:disabled {
       opacity: 0.5;
       cursor: default;
     }
-
     .counter {
       margin-top: 18px;
       font-size: 13px;
@@ -100,17 +87,12 @@
     }
   </style>
 </head>
-
 <body>
-
   <div class="container">
-
     <h1>Hestia</h1>
-
     <div class="subtitle">
       Image Oracle
     </div>
-
     <select id="categorySelect">
       <option value="">Choose a category</option>
       <option value="major-arcana">Major Arcana</option>
@@ -119,30 +101,20 @@
       <option value="swords">Swords</option>
       <option value="pentacles">Pentacles</option>
     </select>
-
     <select id="cardSelect" disabled>
       <option value="">Choose a card</option>
     </select>
-
     <div class="image-box" id="imageBox">
     </div>
-
     <button id="drawButton" disabled>
       Draw an Image
     </button>
-
     <div class="counter" id="counter"></div>
-
   </div>
-
-
   <script>
-
     const owner = "hestia33";
     const repository = "hestia-image-oracle";
-
     const cards = {
-
       "major-arcana": [
         ["The Fool", "the-fool"],
         ["The Magician", "the-magician"],
@@ -167,7 +139,6 @@
         ["Judgement", "judgement"],
         ["The World", "the-world"]
       ],
-
       "wands": [
         ["Ace of Wands", "ace-of-wands"],
         ["Two of Wands", "two-of-wands"],
@@ -184,7 +155,6 @@
         ["Queen of Wands", "queen-of-wands"],
         ["King of Wands", "king-of-wands"]
       ],
-
       "cups": [
         ["Ace of Cups", "ace-of-cups"],
         ["Two of Cups", "two-of-cups"],
@@ -201,7 +171,6 @@
         ["Queen of Cups", "queen-of-cups"],
         ["King of Cups", "king-of-cups"]
       ],
-
       "swords": [
         ["Ace of Swords", "ace-of-swords"],
         ["Two of Swords", "two-of-swords"],
@@ -218,7 +187,6 @@
         ["Queen of Swords", "queen-of-swords"],
         ["King of Swords", "king-of-swords"]
       ],
-
       "pentacles": [
         ["Ace of Pentacles", "ace-of-pentacles"],
         ["Two of Pentacles", "two-of-pentacles"],
@@ -235,289 +203,156 @@
         ["Queen of Pentacles", "queen-of-pentacles"],
         ["King of Pentacles", "king-of-pentacles"]
       ]
-
     };
-
-
     const categorySelect =
       document.getElementById("categorySelect");
-
     const cardSelect =
       document.getElementById("cardSelect");
-
     const imageBox =
       document.getElementById("imageBox");
-
     const drawButton =
       document.getElementById("drawButton");
-
     const counter =
       document.getElementById("counter");
-
-
     let images = [];
     let recentImages = [];
     let currentFolder = "";
-
-
     categorySelect.addEventListener("change", function() {
-
       const category = categorySelect.value;
-
       cardSelect.innerHTML =
         '<option value="">Choose a card</option>';
-
       imageBox.innerHTML = "";
-
       counter.textContent = "";
-
       drawButton.disabled = true;
-
       images = [];
       recentImages = [];
       currentFolder = "";
-
-
       if (!category) {
-
         cardSelect.disabled = true;
         return;
-
       }
-
-
       cards[category].forEach(function(card) {
-
         const option =
           document.createElement("option");
-
         option.value = card[1];
         option.textContent = card[0];
-
         cardSelect.appendChild(option);
-
       });
-
-
       cardSelect.disabled = false;
-
     });
-
-
     cardSelect.addEventListener("change", function() {
-
       const category =
         categorySelect.value;
-
       const cardFolder =
         cardSelect.value;
-
-
       imageBox.innerHTML = "";
-
       counter.textContent = "";
-
       drawButton.disabled = true;
-
       images = [];
       recentImages = [];
-
-
       if (!category || !cardFolder) {
         return;
       }
-
-
       findActualFolder(category, cardFolder);
-
     });
-
-
     async function findActualFolder(category, cardFolder) {
-
       try {
-
         const categoryUrl =
           `https://api.github.com/repos/${owner}/${repository}/contents/images/${category}`;
-
         const response =
           await fetch(categoryUrl);
-
         if (!response.ok) {
           throw new Error("Could not load category folder");
         }
-
         const folders =
           await response.json();
-
-
         const matchingFolder =
           folders.find(function(item) {
-
             return item.type === "dir" &&
               item.name.trim() === cardFolder.trim();
-
           });
-
-
         if (!matchingFolder) {
-
           throw new Error("Card folder not found");
-
         }
-
-
         currentFolder =
           matchingFolder.path;
-
         loadImages();
-
       } catch (error) {
-
         console.error(error);
-
         counter.textContent =
           "Unable to load the image bank.";
-
       }
-
     }
-
-
     async function loadImages() {
-
       try {
-
         const apiUrl =
           `https://api.github.com/repos/${owner}/${repository}/contents/${currentFolder}`;
-
-
         const response =
           await fetch(apiUrl);
-
-
         if (!response.ok) {
           throw new Error("Could not load image folder");
         }
-
-
         const files =
           await response.json();
-
-
         images =
           files
             .filter(function(file) {
-
               return file.type === "file" &&
                 /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name);
-
             })
             .map(function(file) {
-
               return file.download_url;
-
             });
-
-
         if (images.length === 0) {
-
           counter.textContent =
             "No images in the image bank yet.";
-
           return;
-
         }
-
-
         counter.textContent =
           `${images.length} images in the image bank`;
-
-
         drawButton.disabled = false;
-
-
       } catch (error) {
-
         console.error(error);
-
         counter.textContent =
           "Unable to load the image bank.";
-
       }
-
     }
-
-
     function drawImage() {
-
       if (images.length === 0) {
         return;
       }
-
-
       let availableImages =
         images.filter(function(image) {
-
           return !recentImages.includes(image);
-
         });
-
-
       if (availableImages.length === 0) {
-
         recentImages = [];
-
         availableImages = [...images];
-
       }
-
-
       const randomIndex =
         Math.floor(
           Math.random() * availableImages.length
         );
-
-
       const selectedImage =
         availableImages[randomIndex];
-
-
       recentImages.push(selectedImage);
-
-
       if (recentImages.length > 10) {
         recentImages.shift();
       }
-
-
       imageBox.innerHTML = "";
-
-
       const img =
         document.createElement("img");
-
-
       img.src = selectedImage;
-
-
       img.alt =
         cardSelect.options[
           cardSelect.selectedIndex
         ].textContent;
-
-
       imageBox.appendChild(img);
-
     }
-
-
     drawButton.addEventListener(
       "click",
       drawImage
     );
-
   </script>
-
 </body>
 </html>
